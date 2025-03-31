@@ -660,6 +660,63 @@ ALTER TABLE HXY_SEMINAR
     ) 
 ;
 
+-- ================================================
+-- Additional CHECK Constraints for Data Consistency
+-- ================================================
+
+-- 1. Customer ID Type must be one of defined types
+ALTER TABLE HXY_CUSTOMER
+ADD CONSTRAINT chk_customer_idtype
+CHECK (IDTYPE IN ('Passport', 'SSN', 'Driver License'));
+
+-- 2. Copy status must be either Available or Not Available
+ALTER TABLE HXY_COPY
+ADD CONSTRAINT chk_copy_status
+CHECK (STATUS IN ('Available', 'Not Available'));
+
+-- 3. Author Zipcode must be exactly 5 digits
+ALTER TABLE HXY_AUTHOR
+ADD CONSTRAINT chk_author_zipcode
+CHECK (REGEXP_LIKE(ZIPCODE, '^\d{5}$'));
+
+-- 4. Rental Status must be one of Borrowed, Returned, or Late
+ALTER TABLE HXY_RENTAL
+ADD CONSTRAINT chk_rental_status
+CHECK (RENTALSTATUS IN ('Borrowed', 'Returned', 'Late'));
+
+-- 5. Enforce Borrowdate is earlier than return date
+ALTER TABLE HXY_RENTAL
+ADD CONSTRAINT chk_rental_dates
+CHECK (ERETURNDATE >= BORROWDATE AND ARETURNDATE >= BORROWDATE);
+
+-- ================================================
+-- Trigger: Generate Invoice When Rental is Returned
+-- ================================================
+
+CREATE OR REPLACE TRIGGER trg_generate_invoice
+AFTER UPDATE OF RSTATUS ON HXY_RENTAL
+FOR EACH ROW
+WHEN (NEW.RSTATUS = 'Returned')
+DECLARE
+    v_invoice_amount NUMBER;
+BEGIN
+    IF :NEW.ARETURNDATE <= :NEW.ERETURNDATE THEN
+        v_invoice_amount := (:NEW.ARETURNDATE - :NEW.BORROWDATE) * 0.2;
+    ELSE
+        v_invoice_amount := (:NEW.ERETURNDATE - :NEW.BORROWDATE) * 0.2 +
+                            (:NEW.ARETURNDATE - :NEW.ERETURNDATE) * 0.4;
+    END IF;
+
+    INSERT INTO HXY_INVOICE (INVDATE, INVAMOUNT, RENTID)
+    VALUES (
+        SYSDATE,
+        v_invoice_amount,
+        :NEW.RENTID
+    );
+END;
+/
+
+
 CREATE OR REPLACE TRIGGER ARC_FKArc_5_HXY_SEMINAR 
 BEFORE INSERT OR UPDATE OF ENVENTID 
 ON HXY_SEMINAR 
@@ -788,3 +845,7 @@ END;
 -- 
 -- ERRORS                                   0
 -- WARNINGS                                 0
+
+
+
+
