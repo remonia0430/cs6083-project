@@ -38,6 +38,40 @@ END;
 //
 DELIMITER ;
 
+-- 6. Email address must follow the rules
+DELIMITER //
+CREATE TRIGGER trg_chk_author_email
+BEFORE INSERT ON HXY_AUTHOR
+FOR EACH ROW
+BEGIN
+    IF NEW.EMAIL NOT REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Invalid email format';
+    END IF;
+END;
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER trg_chk_customer_email
+BEFORE INSERT ON HXY_CUSTOMER
+FOR EACH ROW
+BEGIN
+    IF NEW.EMAIL NOT REGEXP '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Invalid email format';
+    END IF;
+END;
+//
+DELIMITER ;
+
+-- 7. Payment methods: Cash, Credit, Debit, PayPal 
+ALTER TABLE HXY_PAYMENT 
+MODIFY METHOD ENUM('Cash', 'Credit', 'Debit', 'PayPal') NOT NULL;
+
+
+
+-- Trigger for generating invoice after return the book
 DELIMITER //
 
 CREATE TRIGGER trg_generate_invoice
