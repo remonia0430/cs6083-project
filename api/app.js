@@ -1,29 +1,25 @@
-const express = require('express')
-var bodyParser = require('body-parser')
+//importing packages
+const express = require('express');
+const cors = require("cors");
+const bodyParser = require('body-parser');
+
+//importing routes
+const authRoutes = require('./routes/authRoutes');
+const bookRoutes = require("./routes/bookRoutes");
+
+//start an express app
 const app = express()
 app.use(bodyParser.urlencoded({ extended: false}))
 app.use(bodyParser.json())
+app.use(cors());
 
+//application routers
+// app.use('/api/auth', authRoutes);
+app.use('/api/books', bookRoutes);
+
+
+//port setting
 const port = 3000
-
-const configs = require("./config")
-app.get('/', (req, res) =>{
-   res.send('Hello world')
-})
-
-
-//import mysql
-var mysql = require('mysql')
-//create database connection
-var connection = mysql.createConnection(configs.mysql)
-
-//connect database
-connection.connect()
-connection.query("SELECT * FROM HXY_AUTHOR AS solution", function(err, rows, fields){
-   if(err) throw err
-   console.log("Result: ", rows[0].solution)
-})
-
 app.listen(port, () =>{
    console.log(`Example app listening on port ${port}`)
 })

@@ -1,10 +1,11 @@
-const configs = {
-	mysql:{
+var mysql = require('mysql2/promise');
+
+const db = mysql.createPool({
 		host: "csgy-6083-project.cmpmkwkw2dmw.us-east-1.rds.amazonaws.com",
 		user: "admin",
 		password: "cs6083project",
-		database: "project"
+		database: "test"
 	}
-}  
+);
 
-module.exports = configs
+module.exports = db;
