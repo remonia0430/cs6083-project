@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 //importing routes
 const authRoutes = require('./routes/authRoutes');
 const bookRoutes = require("./routes/bookRoutes");
+const topicRoutes = require("./routes/topicRoutes");
 
 //start an express app
 const app = express()
@@ -16,6 +17,7 @@ app.use(cors());
 //application routers
 // app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
+app.use('/api/topics', topicRoutes);
 
 
 //port setting
