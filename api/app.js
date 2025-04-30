@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const authRoutes = require('./routes/authRoutes');
 const bookRoutes = require("./routes/bookRoutes");
 const topicRoutes = require("./routes/topicRoutes");
+const roomRoutes = require("./routes/roomRoutes");
 
 //start an express app
 const app = express()
@@ -18,6 +19,7 @@ app.use(cors());
 // app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/topics', topicRoutes);
+app.use("/api/rooms", roomRoutes);
 
 
 //port setting
