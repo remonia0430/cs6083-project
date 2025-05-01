@@ -191,7 +191,7 @@ const returnBook = async(req, res) => {
 const addBook = async(req, res) => {
     const {bname, topicID, authID} = req.body;
 
-    if(!bname || !topicID){
+    if(!bname || !topicID || !authID){
         return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
     

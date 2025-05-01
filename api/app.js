@@ -9,6 +9,7 @@ const bookRoutes = require("./routes/bookRoutes");
 const topicRoutes = require("./routes/topicRoutes");
 const roomRoutes = require("./routes/roomRoutes");
 const reservationRoutes = require("./routes/reservationRoutes");
+const authorRoutes = require("./routes/authorRoutes")
 
 //start an express app
 const app = express()
@@ -22,6 +23,7 @@ app.use('/api/books', bookRoutes);
 app.use('/api/topics', topicRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/reservations", reservationRoutes);
+app.use('/api/author', authorRoutes);
 
 
 //port setting
