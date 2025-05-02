@@ -39,7 +39,7 @@ const getById = async (req, res) =>{
     try{
         const [reservations] = await db.execute(reservation, [id]);
         if(reservations.length === 0){
-            return res.status(400).json({success: false, message: 'Reservation not found'});
+            return res.status(400).json({success: false, code: 102, message: 'Reservation not found'});
         }
 
         res.json({
@@ -83,6 +83,32 @@ const getReservation = async(req, res) => {
 
 }
 
+const myReservation = async(req, res) => {
+    const {roomNO, rdate} = req.body;
+
+    let sql = `SELECT * FROM HXY_RESERVATION WHERE CUSTNO = ? `;
+    const custNO = req.user.id;
+    const params = [custNO];
+    
+    if (roomNO) {
+        sql += ` AND ROOMNO = ?`;
+        params.push(roomNO);
+    }
+    if (rdate) {
+        sql += ` AND RESDATE = ?`;
+        params.push(rdate);
+    }
+    try{
+        const [result] = await db.execute(sql, params);
+        res.status(200).json({success: true, code:0, result});
+    }
+    catch(err){
+        console.error(err);
+        return res.status(500).json({success: false, message: 'error'});
+    }
+
+}
+
 
 const makeReservation = async (req, res) => {
     const { topic, resDate, startTime, endTime, noi, roomNO } = req.body;
@@ -95,11 +121,11 @@ const makeReservation = async (req, res) => {
         const roomCheck = "SELECT CAPACITY AS cap FROM HXY_ROOM WHERE ROOMNO = ?";
         const [room] = await db.execute(roomCheck, [roomNO]);
         if(room.length === 0){
-            return res.status(400).json({success: false, code: 101, message: "Room not found"});
+            return res.status(400).json({success: false, code: 102, message: "Room not found"});
         }
         else{
             if(room[0].cap < noi){
-                return res.status(400).json({success: false, code: 102, message: "Room capacity exceeded"});
+                return res.status(400).json({success: false, code: 105, message: "Room capacity exceeded"});
             }
         }
 
@@ -108,7 +134,7 @@ const makeReservation = async (req, res) => {
         const eTime = dayjs(endTime, "HH:mm:ss").format('HH:mm:ss');
         console.log({ rDate, sTime, eTime });
         if (sTime >= eTime) {
-            return res.status(400).json({ success: false, code: 103, message: 'Invalid time range' });
+            return res.status(400).json({ success: false, code: 106, message: 'Invalid time range' });
         }
         
         const checkSQL = `
@@ -123,7 +149,7 @@ const makeReservation = async (req, res) => {
         });
     
         if (conflict) {
-            return res.status(409).json({ success: false, code: 104, message: 'Time slot not available' });
+            return res.status(409).json({ success: false, code: 106, message: 'Time slot not available' });
         }
     
         const insertSQL = `
@@ -153,7 +179,7 @@ const cancelReservation = async (req, res) =>{
     try{
         const [reservation] = await db.execute("SELECT RESID FROM HXY_RESERVATION WHERE RESID = ?", [reservationID]);
         if(reservation.length === 0){
-            return res.status(400).json({success: false, message: 'reservation not found'});
+            return res.status(400).json({success: false, code: 102, message: 'reservation not found'});
         }
         await db.execute("UPDATE HXY_RESERVATION SET ISACTIVE = 0 WHERE RESID", [reservationID]);
         res.status(200).json({
@@ -173,5 +199,6 @@ module.exports = {
     getById,
     getReservation,
     makeReservation,
+    myReservation,
     cancelReservation
 }

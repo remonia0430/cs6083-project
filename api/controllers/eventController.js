@@ -35,10 +35,9 @@ const getAllEvents = async (req, res) => {
         }
     }
     sql += ' GROUP BY e.ENVENTID ORDER BY e.STARTDATE ASC';
-    console.log(sql);
     try {
         const [rows] = await db.execute(sql, params);
-        res.json({ success: true, events: rows });
+        res.status(200).json({ success: true, events: rows });
     } 
     catch (err) {
         console.error(err);
@@ -62,7 +61,7 @@ const getById = async(req, res) => {
     
     const id = req.query.id;
 
-    if(!id) res.status(400).json({success: false, message: 'id required'});
+    if(!id) res.status(400).json({success: false, code: 100, message: 'id required'});
 
     try{
         const [events] = await db.execute(sql, [id]);
@@ -80,12 +79,12 @@ const getFullInfoById = async(req, res) => {
     
     const id = req.query.id;
 
-    if(!id) res.status(400).json({success: false, message: 'id required'});
+    if(!id) res.status(400).json({success: false, code: 100, message: 'id required'});
 
     try{
         const [typeCheck] = await db.execute(typeSQL, [id]);
         let sql = "";
-        if(typeCheck.length === 0) return res.status(400).json({success: false, message: 'event not found'});
+        if(typeCheck.length === 0) return res.status(400).json({success: false, code: 102, message: 'event not found'});
         if(typeCheck[0].type !== "HXY_SEMINAR" && typeCheck[0].type !== "HXY_EXHIBITION") return res.status(400).json({success: false, message: 'event type not found'});
         console.log(typeCheck[0].type);
         if(typeCheck[0].type === "HXY_SEMINAR"){
@@ -132,7 +131,7 @@ const getByName = async(req, res) => {
     
     const name = req.query.name;
 
-    if(!name) res.status(400).json({success: false, message: 'name required'});
+    if(!name) res.status(400).json({success: false, code: 100, message: 'name required'});
 
     try{
         const sql = `SELECT e.*,
@@ -161,7 +160,7 @@ const getByName = async(req, res) => {
 const getByTopic = async(req, res) => {
     const topic = req.query.topicID;
 
-    if(!topic) res.status(400).json({success: false, message: 'name required'});
+    if(!topic) res.status(400).json({success: false, code: 100, message: 'topic required'});
 
     try{
         const sql = `SELECT e.*,
@@ -189,14 +188,14 @@ const getByTopic = async(req, res) => {
 
 const cancelEvent = async(req, res) =>{
     const eventID = req.query.id;
-    if(!eventID) res.status(400).json({success: false, message: 'event id required'});
+    if(!eventID) res.status(400).json({success: false, code: 100, message: 'event id required'});
 
     const conn = await db.getConnection();
     try{
         await conn.beginTransaction();
         const sql = "SELECT * FROM HXY_EVENT WHERE ENVENTID = ?";
         const [event] = await conn.execute(sql, [eventID]);
-        if(event.length === 0) return res.status(400).json({success: false, message: 'event not found'});      
+        if(event.length === 0) return res.status(400).json({success: false, code: 102, message: 'event not found'});      
         
         const sql2 = "update HXY_EVENT set STATUS = 1 WHERE ENVENTID = ?";
         await conn.execute(sql2, [eventID]);
@@ -217,7 +216,7 @@ const getSeminarByAuthor = async (req, res) => {
     const author = req.query.author;
   
     if (!author) {
-        return res.status(400).json({ success: false, message: 'missing fields' });
+        return res.status(400).json({ success: false, code: 100, message: 'missing fields' });
     }
   
     const sql = `SELECT E.* , CONCAT(A.AFNAME, " ", A.ALNAME) as Author
@@ -243,7 +242,7 @@ const addSeminar = async (req, res) => {
     const { name, sdate, edate, topic, authorNO, invid, sponsorNO, amount} = req.body;
     
     if (!name || !sdate || !edate || !topic || !authorNO || !invid || !sponsorNO || !amount) {
-        return res.status(400).json({ success: false, message: 'missing fields' });
+        return res.status(400).json({ success: false, code: 100, message: 'missing fields' });
     }
   
     const conn = await db.getConnection();
@@ -277,7 +276,7 @@ const addExhibition = async (req, res) => {
     const { name, sdate, edate, topic, expense } = req.body;
     
     if (!name || !sdate || !edate || !topic) {
-        return res.status(400).json({ success: false, message: 'missing fields' });
+        return res.status(400).json({ success: false, code: 100, message: 'missing fields' });
     }
   
     const conn = await db.getConnection();
@@ -304,7 +303,7 @@ const addExhibition = async (req, res) => {
 
 const registerExhibition = async(req, res) =>{
     const {regID, eventID, userID} = req.body;
-    if(!regID || !eventID || !userID) res.status(400).json({success: false, message: 'event id and user id required'});
+    if(!regID || !eventID || !userID) res.status(400).json({success: false, code: 100, message: 'event id and user id required'});
 
     try{
         const sql = "INSERT INTO HXY_CUSTOMER_EXHIBITION(REGID, ENVENTID, CUSTNO) VALUE(?, ?, ?)";
@@ -320,14 +319,14 @@ const registerExhibition = async(req, res) =>{
 
 const cancelRegirtration = async(req, res) =>{
     const {regID} = req.body;
-    if(!regID) res.status(400).json({success: false, message: 'event id and user id required'});
+    if(!regID) res.status(400).json({success: false, code: 100, message: 'event id and user id required'});
     
     const conn = await db.getConnection();
     try{
         await conn.beginTransaction();
         const sql = "SELECT * FROM HXY_CUSTOMER_EXHIBITION WHERE REGID = ?";
         const [reg] = await conn.execute(sql, [regID]);
-        if(reg.length === 0) return res.status(400).json({success: false, message: 'registration not found'});      
+        if(reg.length === 0) return res.status(400).json({success: false, code: 102, message: 'registration not found'});      
         
         const sql2 = "update HXY_CUSTOMER_EXHIBITION set ISCANCELLED = 1 WHERE REGID = ?";
         await conn.execute(sql2, [regID]);

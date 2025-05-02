@@ -38,7 +38,7 @@ const getById = async (req, res) => {
                 GROUP BY I.RENTID;`
     const id = req.query.id;
 
-    if (!id) return res.status(400).json({ success: false, message: 'id required' });
+    if (!id) return res.status(400).json({ success: false, code: 100, message: 'id required' });
 
     try {
         const [invoices] = await db.execute(sql, [id]);
@@ -68,7 +68,7 @@ const getByCustomerId = async (req, res) => {
                 GROUP BY I.RENTID;`
     const id = req.query.id;
 
-    if (!id) return res.status(400).json({ success: false, message: 'id required' });
+    if (!id) return res.status(400).json({ success: false, code: 100, message: 'id required' });
 
     try {
         const [invoices] = await db.execute(sql, [id]);
@@ -80,6 +80,37 @@ const getByCustomerId = async (req, res) => {
         return res.status(500).json({ success: false, message: 'error' });
     }
 }
+
+const getMyInvoices = async (req, res) => {
+    const sql = `SELECT I.RENTID as RENTNo,
+                        I.INVDATE as InvoiceDate,
+                        I.INVAMOUNT as Amount,
+                        C.CUSTNO as CustomerNo,
+                        CONCAT(C.CFNAME, ' ', C.CLNAME) as CustomerName,
+                        SUM(P.PAYAMOUNT) as PaidAmount,
+                        I.INVAMOUNT - SUM(P.PAYAMOUNT) as RemainingAmount,
+                        SUM(P.PAYAMOUNT) = I.INVAMOUNT as IsPaid
+                FROM HXY_INVOICE I
+                LEFT JOIN HXY_PAYMENT P ON P.RENTID = I.RENTID
+                left JOIN HXY_RENTAL R ON R.RENTID = I.RENTID
+                LEFT JOIN HXY_CUSTOMER C ON C.CUSTNO = R.CUSTNO
+                WHERE C.CUSTNO = ?
+                GROUP BY I.RENTID;`
+    const id = req.user.id;
+
+    if (!id) return res.status(400).json({ success: false, code: 100, message: 'id required' });
+
+    try {
+        const [invoices] = await db.execute(sql, [id]);
+
+        res.status(200).json({ success: true, message: "ok", invoices });
+    }
+    catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: 'error' });
+    }
+}
+
 
 const getInvoiceStatus = async (req, res) => {
     const sql = `SELECT P.RENTID as RentNo,
@@ -95,7 +126,7 @@ const getInvoiceStatus = async (req, res) => {
                 WHERE C.CUSTNO = ?;`
     const id = req.query.rentId;
 
-    if (!id) return res.status(400).json({ success: false, message: 'rentId required' });
+    if (!id) return res.status(400).json({ success: false, code: 100, message: 'rentId required' });
 
     try {
         const [payments] = await db.execute(sql, [id]);
@@ -128,7 +159,39 @@ const getCustomerUnpaidInvoices = async (req, res) => {
                 GROUP BY I.RENTID;`
     const id = req.query.id;
 
-    if (!id) return res.status(400).json({ success: false, message: 'id required' });
+    if (!id) return res.status(400).json({ success: false, code: 100, message: 'id required' });
+
+    try {
+        const [invoices] = await db.execute(sql, [id]);
+
+        res.status(200).json({ success: true, message: "ok", invoices });
+    }
+    catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: 'error' });
+    }
+}
+const getMyUnpaidInvoices = async (req, res) => {
+    const sql = `SELECT I.RENTID as RentNo,
+                        C.CUSTNO as CustomerNo,
+                        I.INVAMOUNT as InvoiceAmount,
+                        case
+                            when SUM(P.PAYAMOUNT) is null then 0
+                            else SUM(P.PAYAMOUNT)
+                        end as PaidAmount,
+                        case
+                            when SUM(P.PAYAMOUNT) is null then I.INVAMOUNT
+                            else I.INVAMOUNT - SUM(P.PAYAMOUNT)
+                        end as RemainingAmount
+                FROM HXY_INVOICE I
+                LEFT JOIN HXY_PAYMENT P ON P.RENTID = I.RENTID
+                LEFT JOIN HXY_RENTAL R ON R.RENTID = I.RENTID
+                LEFT JOIN HXY_CUSTOMER C ON C.CUSTNO = R.CUSTNO
+                WHERE C.CUSTNO = ?
+                GROUP BY I.RENTID;`
+    const id = req.user.id;
+
+    if (!id) return res.status(400).json({ success: false, code: 100, message: 'id required' });
 
     try {
         const [invoices] = await db.execute(sql, [id]);
@@ -177,5 +240,7 @@ module.exports = {
     getByCustomerId,
     getInvoiceStatus,
     getCustomerUnpaidInvoices,
-    getUnpaidInvoices
+    getUnpaidInvoices,
+    getMyInvoices,
+    getMyUnpaidInvoices
 };

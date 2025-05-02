@@ -1,4 +1,6 @@
 const express = require('express');
+const verifyToken = require('../middleware/authMiddleware');
+const isAdmin = require('../middleware/adminMiddleware');
 const router = express.Router();
 const {
     getAllEvents,
@@ -24,30 +26,30 @@ router.get("/id", getById);
 router.get("/topic", getByTopic);
 
 //get full information by event id for admin
-router.get("/info", getFullInfoById);
+router.get("/info", verifyToken, isAdmin, getFullInfoById);
 
 //search by event name
 router.get("/search", getByName);
 
 //cancel a event
-router.delete("/cancel", cancelEvent);
+router.delete("/cancel", verifyToken, isAdmin, cancelEvent);
 
 /* SEMINARS */
 //search seminar by author
 router.get("/seminar/author", getSeminarByAuthor);
 
 //add a new seminar
-router.post("/seminar/add", addSeminar);
+router.post("/seminar/add", verifyToken, isAdmin, addSeminar);
 
 /* EXHIBITIONS */
 
 //add a new exhibition
-router.post("/exhibition/add", addExhibition);
+router.post("/exhibition/add", verifyToken, isAdmin, addExhibition);
 
 //regiser to an exhibition
-router.post("/exhibition/register", registerExhibition);
+router.post("/exhibition/register", verifyToken, registerExhibition);
 
 //cancel a registristion
-router.delete("/exhibition/cancel", cancelRegirtration);
+router.delete("/exhibition/cancel", verifyToken, cancelRegirtration);
 
 module.exports = router;

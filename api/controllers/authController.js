@@ -1,57 +1,82 @@
-// const db = require("../config/DBconfig");
-// const bcrypt = require("bcrypt");
-// const jwt = require("jsonwebtoken");
+const db = require("../config/DBconfig");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
-// const login = async (req, res) =>{
-//     const {username, password} = req.body;
+const login = async (req, res) => {
+    const { username, password } = req.body;
 
-//     if(!username || !password){
-//         return res.status(400).json({success: false, message: "username and password required"});
-//     }
+    const sql = `SELECT * FROM HXY_CUSTOMER WHERE USERNAME = ?`;
+    const [rows] = await db.execute(sql, [username]);
 
-//     try{
-//         const user = await db.execute("SELECT PASSWD as password, IS_ADMIN as role FROM HXY_CUSTOMER WHERE USERNAME = ?", [username]);
-//         if(!user){
-//             return res.status(400).json({success: false, message: `User ${username} doesn't exist`});
-//         }
+    if (rows.length === 0) {
+        return res.status(401).json({ success: false, message: 'User not found' });
+    }
 
-//         const match = await bcrypt.match(password, user.password);
-//         if(!match){
-//             return res.status(400).json({success: false, message: `Wrong password`});
-//         }
+    const user = rows[0];
+    const match = await bcrypt.compare(password, user.PASSWD);
 
-//         const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-//         res.json({ token });
+    if (!match) {
+        return res.status(401).json({ success: false, message: 'Incorrect password' });
+    }
 
-//         return res.status(200).json({success: true, message: `Login successful`, role: user.role});
-//     }
-//     catch(err){
-//         console.err(err);
-//         res.status(500).json({success: false, message: `Error`});
-//     }
+    const token = jwt.sign(
+        { id: user.CUSTNO, isAdmin: user.ISADMIN === 1 },
+        process.env.JWT_SECRET || 'secret',
+        { expiresIn: '2h' }
+    );
 
-// }
+    res.json({ success: true, token });
+};
 
-// const register = async (req, res) => {
-//     const {fname, lname, phone, email, idtype, idno, username, passwd} = req.body;
-//     if(!fname || !lname || !phone || !email || !idtype || !idno || !username || !passwd){
-//         return res.status(400).json({success: false, message: "username and password required"});
-//     }
+
+const register = async (req, res) => {
+    const {fname, lname, phone, email, idtype, idno, username, passwd} = req.body;
+    if(!fname || !lname || !phone || !email || !idtype || !idno || !username || !passwd){
+        return res.status(400).json({success: false, message: "missing fields"});
+    }
     
-//     try{
-//         const user = await db.execute("SELECT IS_ADMIN FROM HXY_CUSTOMER WHERE USERNAME = ?", [username]);
-//         if(user){
-//             return res.status(400).json({success: false, message: `User ${username} already exists`});
-//         }
+    try{
+        const [user] = await db.execute("SELECT IS_ADMIN FROM HXY_CUSTOMER WHERE USERNAME = ?", [username]);
+        if(user.length > 0){
+            return res.status(400).json({success: false, message: `User ${username} already exists`});
+        }
 
-//         const hashedPW = bcrypt.hash(passwd, 10);
-//         db.execute(`INSERT INTO HXY_CUSTOMER (CFNAME, CLNAME, PHONE, EMAIL, IDTYPE, IDNO, IS_ADMIN, USERNAME, PASSWD
-//                     VALUES(?, ?, ?, ?, ?, ?, 0, ?, ?,)`, [fname, lname, phone, email, idtype, idno, username, hashedPW]);
+        const hashedPW = await bcrypt.hash(passwd, 10);
+        await db.execute(`INSERT INTO HXY_CUSTOMER (CFNAME, CLNAME, PHONE, EMAIL, IDTYPE, IDNO, IS_ADMIN, USERNAME, PASSWD)
+                    VALUES(?, ?, ?, ?, ?, ?, 0, ?, ?)`, [fname, lname, phone, email, idtype, idno, username, hashedPW]);
 
-//         return res.status(200).json({success: true, message: `Register successful`});
-//     }
-//     catch(err){
-//         console.err(err);
-//         res.status(500).json({success: false, message: `Error`});
-//     }
-// }
+        return res.status(200).json({success: true, message: `Register successful`});
+    }
+    catch(err){
+        console.err(err);
+        res.status(500).json({success: false, message: `Error`});
+    }
+}
+
+const setAdmin = async (req, res) => {
+    const { isAdmin, id } = req.body;
+    if (!id || isAdmin === undefined){
+        return res.status(400).json({ success: false, message: 'missing fields' });
+    }
+
+    try {
+        const sql = `UPDATE HXY_CUSTOMER SET IS_ADMIN = ? WHERE CUSTNO = ?`;
+        await db.execute(sql, [isAdmin, id]);
+
+        if(isAdmin === 0){
+            return res.status(200).json({ success: true, message: `User ${id} is no longer an admin` });
+        }
+        else{
+            return res.status(200).json({ success: true, message: `User ${id} is now an admin` });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: `Error` });
+    }
+}
+
+module.exports = {
+    login,
+    register,
+    setAdmin
+}

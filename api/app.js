@@ -14,7 +14,7 @@ const eventRoutes = require("./routes/eventRoutes");
 const sponsorRoutes = require("./routes/sponsorRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const invoiceRoutes = require("./routes/invoiceRoutes");
-// const customerRoutes = require("./routes/customerRoutes");
+const customerRoutes = require("./routes/customerRoutes");
 
 //start an express app
 const app = express()
@@ -23,7 +23,7 @@ app.use(bodyParser.json())
 app.use(cors());
 
 //application routers
-// app.use('/api/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/topics', topicRoutes);
 app.use("/api/rooms", roomRoutes);
@@ -33,7 +33,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/sponsors', sponsorRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/invoices', invoiceRoutes);
-// app.use('/api/customers', customerRoutes);
+app.use('/api/customers', customerRoutes);
 
 
 //port setting

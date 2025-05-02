@@ -18,7 +18,7 @@ const getById = async(req, res) => {
     const sql = "SELECT * FROM HXY_AUTHOR WHERE AUTHNO = ?";
     const id = req.query.id;
 
-    if(!id) res.status(400).json({success: false, message: 'id required'});
+    if(!id) res.status(400).json({success: false, code: 100, message: 'id required'});
 
     try{
         const [authors] = await db.execute(sql, [id]);
@@ -33,14 +33,14 @@ const getById = async(req, res) => {
 
 const addAuthor = async(req, res) =>{
     const {fname, lname, street, city, zipcode, email} = req.body;
-    if(!fname || !lname || !street || !city || !zipcode || !email) res.status(400).json({success: false, message: 'missing fields'});
+    if(!fname || !lname || !street || !city || !zipcode || !email) res.status(400).json({success: false, code: 100, message: 'missing fields'});
     
     try{
         const checkSQL = "SELECT AUTHNO FROM HXY_AUTHOR WHERE AFNAME = ? AND ALNAME = ?";
         const [check] = await db.execute(checkSQL, [fname, lname]);
 
         if(check.length !== 0){
-            return res.status(400).json({success: false, message:"author already exists"});
+            return res.status(400).json({success: false, code: 101, message:"author already exists"});
         }
 
         const addSQL = "INSERT INTO HXY_AUTHOR(AFNAME, ALNAME, STREET, CITY, ZIPCODE, EMAIL) VALUE(?, ?, ?, ?, ?, ?)";
@@ -57,7 +57,7 @@ const addAuthor = async(req, res) =>{
 
 const updateAuthor = async (req, res) => {
     const authno = req.query.id;
-	if(!authno) res.status(400).json({success: false, message: 'id required'});
+	if(!authno) res.status(400).json({success: false, code: 100, message: 'id required'});
 
     const {fname, lname, street, city, zipcode, email} = req.body;
   
@@ -117,7 +117,7 @@ const updateAuthor = async (req, res) => {
 const delAuthor = async(req, res) =>{
     const id = req.query.id;
 
-    if(!id) return res.status(400).json({success: false, message: 'id required'});
+    if(!id) return res.status(400).json({success: false, code: 100, message: 'id required'});
 
     try{
 
@@ -125,7 +125,7 @@ const delAuthor = async(req, res) =>{
         const [authors] = await db.execute(del, [id]);
 
 		if (authors.affectedRows === 0) {
-			return res.status(400).json({ success: false, message: "Author not found." });
+			return res.status(400).json({ success: false, code: 102, message: "Author not found." });
 		}
 
         res.status(200).json({success: true, message:"author deleted"});

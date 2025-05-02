@@ -1,29 +1,32 @@
 const express = require('express');
+const verifyToken = require('../middleware/authMiddleware');
+const isAdmin = require('../middleware/adminMiddleware');
 const router = express.Router();
 const {
     getAllPayments,
     getById,
     getByInvoiceId,
     getByCustomerId,
-    makePayment
+    makePayment,
+    myPayment
 } = require("../controllers/paymentController");
 
 //get all payments
-router.get("/", getAllPayments);
+router.get("/", verifyToken, isAdmin, getAllPayments);
 
 //get by payment id
-router.get("/id", getById);
+router.get("/id", verifyToken, isAdmin, getById);
 
 //get by invoice id
-router.get("/invoice", getByInvoiceId);
+router.get("/invoice", verifyToken, isAdmin, getByInvoiceId);
 
 //get by customer id
-router.get("/customer", getByCustomerId);
+router.get("/customer", verifyToken, isAdmin, getByCustomerId);
 
 //make a payment
-router.post("/pay", makePayment);
+router.post("/pay", verifyToken, makePayment);
 
-
+router.get("/my", verifyToken, myPayment);
 
 
 module.exports = router;

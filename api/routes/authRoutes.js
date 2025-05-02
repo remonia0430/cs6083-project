@@ -1,14 +1,19 @@
-// const express = require('express');
-// const router = express.Router();
-// const {
-//     register,
-//     login
-// } = require("../controllers/authController");
+const express = require('express');
+const verifyToken = require('../middleware/authMiddleware');
+const isAdmin = require('../middleware/adminMiddleware');
+const router = express.Router();
+const {
+    register,
+    login,
+    setAdmin
+} = require("../controllers/authController");
 
-// //login
-// router.post("/auth/login", login);
+//login
+router.get("/login", login);
 
-// //register
-// router.post("/auth/register", register);
+//register
+router.post("/register", register);
 
-// module.exports = router;
+router.put("/setAdmin", verifyToken, isAdmin, setAdmin);
+
+module.exports = router;

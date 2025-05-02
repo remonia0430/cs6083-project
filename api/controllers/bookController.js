@@ -44,7 +44,7 @@ const getAllBooks = async (req, res) =>{
 
 const getById = async (req, res) =>{
     const id = req.query.id;
-    if(!id) return res.status(400).json({success: false, message: "Book id required"});
+    if(!id) return res.status(400).json({success: false, code: 100, message: "Book id required"});
 
     const book = `${bookInfo}
                 WHERE b.BOOKNO = ? AND b.ISDELETED = 0
@@ -54,7 +54,7 @@ const getById = async (req, res) =>{
     try{
         const [books] = await db.execute(book, [id]);
         if(books.length === 0){
-            return res.status(400).json({success: false, message: 'Book not found'});
+            return res.status(400).json({success: false, code: 102, message: 'Book not found'});
         }
 
         const [copies] = await db.execute(copy, [id]);
@@ -75,7 +75,7 @@ const getById = async (req, res) =>{
 
 const getByTitle = async(req, res) => {
     const title = req.query.title;
-    if(!title) return res.status(400).json({success: false, message: "Book title required"});
+    if(!title) return res.status(400).json({success: false, code: 100, message: "Book title required"});
 
     const sql = `${bookInfo}
                 WHERE b.BNAME LIKE ? AND b.ISDELETED = 0
@@ -96,7 +96,7 @@ const getByTitle = async(req, res) => {
 
 const getByAuthor = async(req, res) => {
     const author = req.query.author;
-    if(!author) return res.status(400).json({success: false, message: "Book author required"});
+    if(!author) return res.status(400).json({success: false, code: 100, message: "Book author required"});
 
     const sql = `${bookInfo}
                 WHERE CONCAT(a.AFNAME, ' ', a.ALNAME) LIKE ? AND b.ISDELETED = 0
@@ -116,10 +116,10 @@ const getByAuthor = async(req, res) => {
 }
 
 const rentBook = async(req, res) => {
-    const {bookNO, copyNO, custNO, EReturnDate} = req.body;
-
+    const {bookNO, copyNO, EReturnDate} = req.body;
+    const custNO = req.user.id;
     if (!bookNO || !copyNO || !custNO || !EReturnDate) {
-        return res.status(400).json({ success: false, message: 'Missing required fields' });
+        return res.status(400).json({ success: false, code: 100, message: 'Missing required fields' });
     }
 
     const checkSQL = `SELECT STATUS as status FROM HXY_COPY WHERE COPYNO = ? AND BOOKNO = ? AND ISDELETED = 0`
@@ -131,10 +131,10 @@ const rentBook = async(req, res) => {
         
         console.log(check[0].status);
         if(check.length === 0){
-            return res.status(400).json({success: false, message: "Copy doesn't exist"});
+            return res.status(400).json({success: false, code: 102, message: "Copy doesn't exist"});
         }
         else if(check[0].status !== "Available"){
-            return res.status(400).json({success: false, message: "Copy not available"});
+            return res.status(400).json({success: false, code: 103, message: "Copy not available"});
         }
 
         (await conn).beginTransaction();
@@ -156,10 +156,10 @@ const rentBook = async(req, res) => {
 }
 
 const returnBook = async(req, res) => {
-    const {bookNO, copyNO, custNO} = req.body;
-
+    const {bookNO, copyNO} = req.body;
+    const custNO = req.user.id;
     if (!bookNO || !copyNO || !custNO) {
-        return res.status(400).json({ success: false, message: 'Missing required fields' });
+        return res.status(400).json({ success: false, code: 100, message: 'Missing required fields' });
     }
 
     const checkSQL = `SELECT STATUS as status FROM HXY_COPY WHERE COPYNO = ? AND BOOKNO = ? AND ISDELETED = 0`
@@ -169,7 +169,7 @@ const returnBook = async(req, res) => {
         const [check] = await conn.execute(checkSQL, [copyNO, bookNO]);
         
         if(check.length === 0){
-            return res.status(400).json({success: false, message: "Copy doesn't exist"});
+            return res.status(400).json({success: false, code: 102, message: "Copy doesn't exist"});
         }
 
         (await conn).beginTransaction();
@@ -192,7 +192,7 @@ const addBook = async(req, res) => {
     const {bname, topicID, authID} = req.body;
 
     if(!bname || !topicID || !authID){
-        return res.status(400).json({ success: false, message: 'Missing required fields' });
+        return res.status(400).json({ success: false, code: 100, message: 'Missing required fields' });
     }
     
     const conn = await db.getConnection();
@@ -201,7 +201,7 @@ const addBook = async(req, res) => {
         const [author] = await conn.execute(checkAuthor, [authID]);
 
         if(author.length === 0){
-            return res.status(400).json({ success: false, message: 'Author not found' });
+            return res.status(400).json({ success: false, code: 102, message: 'Author not found' });
         }
         const addBook = "INSERT INTO HXY_BOOK(BNAME, TOPICID) VALUE (?, ?);";
         const linkAuthor = "INSERT INTO HXY_BOOK_AUTHOR(BOOKNO, AUTHNO) VALUE(?, ?);";
@@ -226,14 +226,14 @@ const addCopy = async(req, res) => {
     const {bookID} = req.body;
 
     if(!bookID){
-        return res.status(400).json({ success: false, message: 'Missing required fields' });
+        return res.status(400).json({ success: false, code: 100, message: 'Missing required fields' });
     }
 
     try{
         const book = "SELECT BOOKNO FROM HXY_BOOK WHERE BOOKNO = ? AND ISDELETED = 0;";
         const [books] = await db.execute(book, [bookID]);
         if(books.length === 0){
-            return res.status(400).json({success: false, message: 'Book not found'});
+            return res.status(400).json({success: false, code: 102, message: 'Book not found'});
         }
         
         const sql = `INSERT INTO HXY_COPY(BOOKNO, STATUS) VALUE(?, "Available")`;
@@ -251,13 +251,13 @@ const delBook = async (req, res) =>{
     const id = req.query.id;
     const book = `SELECT BOOKNO FROM HXY_BOOK b WHERE b.BOOKNO = ? AND b.ISDELETED = 0`;
     if(!id){
-        return res.status(400).json({ success: false, message: 'Missing required fields' });
+        return res.status(400).json({ success: false, code: 100, message: 'Missing required fields' });
     }
 
     try{
         const [books] = await db.execute(book, [id]);
         if(books.length === 0){
-            return res.status(400).json({success: false, message: 'Book not found'});
+            return res.status(400).json({success: false, code: 102, message: 'Book not found'});
         }
 
         await db.execute("UPDATE HXY_BOOK SET ISDELETED = 1 WHERE BOOKNO = ?", [id]);
@@ -278,13 +278,13 @@ const delCopy = async (req, res) =>{
                     JOIN HXY_BOOK b ON b.BOOKNO = c.BOOKNO
                     WHERE c.BOOKNO = ? AND c.COPYNO = ? AND b.ISDELETED = 0`;
     if(!bookID || !copyID){
-        return res.status(400).json({ success: false, message: 'Missing required fields' });
+        return res.status(400).json({ success: false, code: 100, message: 'Missing required fields' });
     }
                 
     try{
         const [copies] = await db.execute(copy, [bookID, copyID]);
         if(copies.length === 0){
-            return res.status(400).json({success: false, message: 'Copy not found'});
+            return res.status(400).json({success: false, code: 102, message: 'Copy not found'});
         }
         await db.execute("UPDATE HXY_COPY SET ISDELETED = 1 WHERE BOOKNO = ? AND COPYNO = ?", [bookID, copyID]);
         res.json({

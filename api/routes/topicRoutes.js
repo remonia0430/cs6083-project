@@ -1,4 +1,6 @@
 const express = require('express');
+const verifyToken = require('../middleware/authMiddleware');
+const isAdmin = require('../middleware/adminMiddleware');
 const router = express.Router();
 const {
     getAllTopics,
@@ -18,9 +20,9 @@ router.get("/search", getByName);
 router.get("/id", getById);
 
 //add a topic
-router.post("/add", addTopic);
+router.post("/add", verifyToken, isAdmin, addTopic);
 
 //del a topic
-router.delete("/del", delTopic);
+router.delete("/del", verifyToken, isAdmin, delTopic);
 
 module.exports = router;

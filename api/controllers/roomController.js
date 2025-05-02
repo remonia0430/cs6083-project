@@ -18,7 +18,7 @@ const getById = async(req, res) => {
     const sql = "SELECT * FROM HXY_ROOM WHERE ROOMNO = ?";
     const id = req.query.id;
 
-    if(!id) res.status(400).json({success: false, message: 'id required'});
+    if(!id) res.status(400).json({success: false, code: 100, message: 'id required'});
 
     try{
         const [rooms] = await db.execute(sql, [id]);
@@ -35,7 +35,7 @@ const getAvailableSlots = async (req, res) => {
     const { roomID, date } = req.query;
   
     if (!roomID || !date) {
-      return res.status(400).json({ success: false, message: 'roomID and date required' });
+      return res.status(400).json({ success: false, code: 100, message: 'roomID and date required' });
     }
   
     const sql = `SELECT STARTTIME, ENDTIME
@@ -71,7 +71,7 @@ const getAvailableSlots = async (req, res) => {
 
 const addRoom = async(req, res) =>{
     const {roomNO, capacity} = req.body;
-    if(!capacity || !roomNO) res.status(400).json({success: false, message: 'room capacity and roomNo required'});
+    if(!capacity || !roomNO) res.status(400).json({success: false, code: 100, message: 'room capacity and roomNo required'});
     
     try{
         const addSQL = "INSERT INTO HXY_ROOM(ROOMNO, CAPACITY) VALUE(?, ?)";
@@ -90,7 +90,7 @@ const delRoom = async(req, res) =>{
     const sql = "SELECT * FROM HXY_ROOM WHERE ROOMNO = ?";
     const id = req.query.id;
 
-    if(!id) res.status(400).json({success: false, message: 'id required'});
+    if(!id) res.status(400).json({success: false, code: 100, message: 'id required'});
 
     try{
 

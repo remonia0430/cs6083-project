@@ -1,4 +1,6 @@
 const express = require('express');
+const verifyToken = require('../middleware/authMiddleware');
+const isAdmin = require('../middleware/adminMiddleware');
 const router = express.Router();
 const {
     getAllRooms,
@@ -18,9 +20,9 @@ router.get("/id", getById);
 router.get("/slots", getAvailableSlots);
 
 //create a new room
-router.post("/add", addRoom);
+router.post("/add", verifyToken, isAdmin, addRoom);
 
 //remove a room
-router.delete("/del", delRoom);
+router.delete("/del", verifyToken, isAdmin, delRoom);
 
 module.exports = router;

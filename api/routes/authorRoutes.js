@@ -1,4 +1,6 @@
 const express = require('express');
+const verifyToken = require('../middleware/authMiddleware');
+const isAdmin = require('../middleware/adminMiddleware');
 const router = express.Router();
 const {
     getAllAuthors,
@@ -15,11 +17,11 @@ router.get("/", getAllAuthors);
 router.get("/id", getById);
 
 //create a new author
-router.post("/add", addAuthor);
+router.post("/add", verifyToken, isAdmin, addAuthor);
 
-router.put("/update", updateAuthor);
+router.put("/update", verifyToken, isAdmin, updateAuthor);
 
 //remove a author
-router.delete("/del", delAuthor);
+router.delete("/del", verifyToken, isAdmin, delAuthor);
 
 module.exports = router;

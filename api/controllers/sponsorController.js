@@ -36,7 +36,7 @@ const getById = async(req, res) => {
                 where S.SPONSORNO = ?;`
     const id = req.query.id;
 
-    if(!id) res.status(400).json({success: false, message: 'id required'});
+    if(!id) res.status(400).json({success: false, code: 100, message: 'id required'});
 
     try{
         const [sponsors] = await db.execute(sql, [id]);
@@ -53,9 +53,9 @@ const addSponsor = async(req, res) => {
     const sql = `INSERT INTO HXY_SPONSOR (STYPE) VALUES (?)`;
     const {sponsorType , fname, lname} = req.body;
 
-    if(!sponsorType || !fname) res.status(400).json({success: false, message: 'missing fields'});
+    if(!sponsorType || !fname) res.status(400).json({success: false, code: 100, message: 'missing fields'});
     if(sponsorType !== 'HXY_ORGANIZATION' && sponsorType !== 'HXY_INDIVIDUAL') res.status(400).json({success: false, message: 'invalid sponsor type'});
-    if(sponsorType === 'HXY_INDIVIDUAL' && !lname) res.status(400).json({success: false, message: 'missing individual name'});
+    if(sponsorType === 'HXY_INDIVIDUAL' && !lname) res.status(400).json({success: false, code: 100, message: 'missing individual name'});
 
     const conn = await db.getConnection();
     try{
@@ -84,7 +84,7 @@ const delSponsor = async(req, res) => {
     const sql = `DELETE FROM HXY_SPONSOR WHERE SPONSORNO = ?`;
     const id = req.query.id;
 
-    if(!id) res.status(400).json({success: false, message: 'id required'}); 
+    if(!id) res.status(400).json({success: false, code: 100, message: 'id required'}); 
     try{
         await db.execute(sql, [id]);
 

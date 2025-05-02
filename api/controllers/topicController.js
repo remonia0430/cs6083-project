@@ -18,7 +18,7 @@ const getById = async(req, res) => {
     const sql = "SELECT * FROM HXY_TOPIC WHERE TOPICID = ?";
     const id = req.query.id;
 
-    if(!id) res.status(400).json({success: false, message: 'id required'});
+    if(!id) res.status(400).json({success: false, code: 100, message: 'id required'});
 
     try{
         const [topics] = await db.execute(sql, [id]);
@@ -35,7 +35,7 @@ const getByName = async(req, res) => {
     const sql = "SELECT * FROM HXY_TOPIC WHERE TNAME LIKE ?";
     const name = req.query.name;
 
-    if(!name) res.status(400).json({success: false, message: 'topic name required'});
+    if(!name) res.status(400).json({success: false, code: 100, message: 'topic name required'});
 
     try{
         const [topics] = await db.execute(sql, [`%${name}%`]);
@@ -50,13 +50,13 @@ const getByName = async(req, res) => {
 
 const addTopic = async(req, res) =>{
     const {tname} = req.body;
-    if(!tname) res.status(400).json({success: false, message: 'topic name required'});
+    if(!tname) res.status(400).json({success: false, code: 100, message: 'topic name required'});
     
     try{
         const testSQL = "SELECT * FROM HXY_TOPIC WHERE TNAME = ?";
         const [test] = await db.execute(testSQL, [tname]);
         if(test.length !== 0){
-            return res.status(400).json({success: false, message: 'topic already exists'});
+            return res.status(400).json({success: false, code: 101, message: 'topic already exists'});
         }
 
         const addSQL = "INSERT INTO HXY_TOPIC(TNAME) VALUE(?)";
@@ -75,7 +75,7 @@ const delTopic = async(req, res) =>{
     const sql = "SELECT * FROM HXY_TOPIC WHERE TOPICID = ?";
     const id = req.query.id;
 
-    if(!id) res.status(400).json({success: false, message: 'id required'});
+    if(!id) res.status(400).json({success: false, code: 100, message: 'id required'});
 
     try{
 

@@ -1,4 +1,6 @@
 const express = require('express');
+const verifyToken = require('../middleware/authMiddleware');
+const isAdmin = require('../middleware/adminMiddleware');
 const router = express.Router();
 const {
     getAllBooks,
@@ -26,21 +28,21 @@ router.get("/search", getByTitle);
 router.get("/search/author", getByAuthor);
 
 //rent a book
-router.post("/rental/rent", rentBook);
+router.post("/rental/rent", verifyToken, rentBook);
 
 //return a book
-router.put("/rental/return", returnBook);
+router.put("/rental/return", verifyToken, returnBook);
 
 //create a new book
-router.post("/add", addBook);
+router.post("/add", verifyToken, isAdmin, addBook);
 
 //add a new copy
-router.post("/add/copy", addCopy);
+router.post("/add/copy", verifyToken, isAdmin, addCopy);
 
 //remove a book
-router.delete("/del", delBook);
+router.delete("/del", verifyToken, isAdmin, delBook);
 
 //remove a copy
-router.delete("/del/copy", delCopy);
+router.delete("/del/copy", verifyToken, isAdmin, delCopy);
 
 module.exports = router;

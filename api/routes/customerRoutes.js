@@ -1,21 +1,29 @@
 const express = require('express');
+const verifyToken = require('../middleware/authMiddleware');
+const isAdmin = require('../middleware/adminMiddleware');
 const router = express.Router();
 const {
-    register,
-    login,
-    getProfile,
+    myProfile,
+    getById,
+    getInfoById,
     updateProfile,
+    resetPassword,
     getAllCustomers
 } = require("../controllers/customerController");
 
-//get all customers
-router.get("/customer", getAllCustomers);
+router.get("/me", verifyToken, myProfile);
 
-//get user profile by id
-router.get("/customer/profile", getProfile);
+router.get("/id", getById);
+
+//get all customers
+router.get("/", verifyToken, isAdmin, getAllCustomers);
+
+
+router.get("/info", verifyToken, isAdmin, getInfoById);
 
 //update user profile
-router.put("/customer/profile/update", updateProfile);
+router.put("/update", verifyToken, updateProfile);
 
+router.put("/reset", verifyToken, resetPassword);
 
 module.exports = router;
