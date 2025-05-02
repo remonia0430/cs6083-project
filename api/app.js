@@ -11,6 +11,7 @@ const roomRoutes = require("./routes/roomRoutes");
 const reservationRoutes = require("./routes/reservationRoutes");
 const authorRoutes = require("./routes/authorRoutes")
 const eventRoutes = require("./routes/eventRoutes");
+const sponsorRoutes = require("./routes/sponsorRoutes");
 
 //start an express app
 const app = express()
@@ -26,6 +27,7 @@ app.use("/api/rooms", roomRoutes);
 app.use("/api/reservations", reservationRoutes);
 app.use('/api/author', authorRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/sponsors', sponsorRoutes);
 
 //port setting
 const port = 3000
