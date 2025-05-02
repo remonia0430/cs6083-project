@@ -12,6 +12,9 @@ const reservationRoutes = require("./routes/reservationRoutes");
 const authorRoutes = require("./routes/authorRoutes")
 const eventRoutes = require("./routes/eventRoutes");
 const sponsorRoutes = require("./routes/sponsorRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
+const invoiceRoutes = require("./routes/invoiceRoutes");
+// const customerRoutes = require("./routes/customerRoutes");
 
 //start an express app
 const app = express()
@@ -28,6 +31,10 @@ app.use("/api/reservations", reservationRoutes);
 app.use('/api/author', authorRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/sponsors', sponsorRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/invoices', invoiceRoutes);
+// app.use('/api/customers', customerRoutes);
+
 
 //port setting
 const port = 3000
