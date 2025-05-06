@@ -1,6 +1,8 @@
 const db = require("../config/DBconfig");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 
 const myProfile = async (req, res) => {
     const sql = `SELECT C.USERNAME as Username,
@@ -73,7 +75,7 @@ const getInfoById = async (req, res) => {
 }
 
 const updateProfile = async (req, res) => {
-    const { fname, lname, phone, email, idtype, idno } = req.body;
+    const { fname, lname, phone, email, idType, idno } = req.body;
     const id = req.user.id;
     let sql = `UPDATE HXY_CUSTOMER SET CUSTNO = ?`;
     let params = [id];
@@ -93,9 +95,9 @@ const updateProfile = async (req, res) => {
         sql += `, EMAIL = ?`;
         params.push(email);
     }
-    if (idtype) {
+    if (idType) {
         sql += `, IDTYPE = ?`;
-        params.push(idtype);
+        params.push(idType);
     }
     if (idno) {
         sql += `, IDNO = ?`;
@@ -110,6 +112,7 @@ const updateProfile = async (req, res) => {
     params.push(id);
 
     try {
+        console.log(sql);
         await db.execute(sql, params);
 
         return res.status(200).json({ success: true, message: `Update successful` });

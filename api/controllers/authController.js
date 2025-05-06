@@ -25,7 +25,7 @@ const login = async (req, res) => {
         { expiresIn: '2h' }
     );
 
-    res.json({ success: true, token });
+    res.status(200).json({ success: true, token });
 };
 
 
@@ -75,8 +75,139 @@ const setAdmin = async (req, res) => {
     }
 }
 
+const requestPasswordReset = async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ success: false, code: 100, message: 'email required' });
+    }
+
+    const sql = `SELECT CUSTNO FROM HXY_CUSTOMER WHERE EMAIL = ?;`
+
+    try {
+        const [rows] = await db.execute(sql, [email]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, code: 102, message: 'User not found' });
+        }
+
+        const user = rows[0];
+        const generateToken = () => {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let token = '';
+            for (let i = 0; i < 6; i++) {
+              token += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return token;
+          };
+          
+        const token = generateToken();
+                  
+        const hashedToken = await bcrypt.hash(token, 10);
+        const expiration = Date.now() + 3600000; // 1 hour
+        const sqlInsert = `UPDATE HXY_CUSTOMER SET TOKEN = ?, EXPIRATION = ? WHERE CUSTNO = ?;`
+        await db.execute(sqlInsert, [hashedToken, expiration, user.CUSTNO]);
+        
+        const sender = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: "hxyproject666@gmail.com",
+                pass: "ngjawkdhawlrdzys"
+            }
+        });
+
+        await sender.sendMail({
+            from: "hxyproject666@gmail.com",
+            to: email,  
+            subject: "Password Reset",
+            text: `Your password reset token is: ${token}. It will expire in 1 hour.`
+        });
+        
+        return res.status(200).json({ success: true, message: `Password reset link sent to ${email}` });
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: `Error` });
+    }
+}
+
+const verifyPasswordResetToken = async (req, res) => {
+    const { email, token } = req.body;
+
+    if (!token || !email) {
+        return res.status(400).json({ success: false, code: 100, message: 'missing fields' });
+    }
+
+    try {
+        // Check if user exists
+        const sql = `SELECT CUSTNO, TOKEN, EXPIRATION FROM HXY_CUSTOMER WHERE EMAIL = ?;`
+        const [rows] = await db.execute(sql, [email]);
+        const user = rows[0];
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, code: 102, message: 'User not found' });
+        }
+
+        if( Date.now() > rows[0].EXPIRATION) {
+            return res.status(400).json({ success: false, code: 103, message: 'Token expired' });
+        }
+        else{
+            const match = await bcrypt.compare(token, rows[0].TOKEN);
+
+            if (!match) {
+                return res.status(401).json({ success: false, code: 104, message: 'Invalid token' });
+            }
+        }
+        
+        const t = jwt.sign(
+            { id: user.CUSTNO, isAdmin: user.ISADMIN === 1 },
+            process.env.JWT_SECRET || 'secret',
+            { expiresIn: '2h' }
+        );    
+
+        return res.status(200).json({ success: true, message: `Token is valid`, token: t });
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: `Error` });
+    }
+}
+
+const resetPassword = async (req, res) => {
+    const { newPassword } = req.body;
+    const id = req.user.id;
+
+    if (!newPassword) {
+        return res.status(400).json({ success: false, code: 100, message: 'newPassword required' });
+    }
+
+    const sql = `SELECT PASSWD FROM HXY_CUSTOMER WHERE CUSTNO = ?;`
+
+    try {
+        const [rows] = await db.execute(sql, [id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, code: 102, message: 'User not found' });
+        }
+
+        const user = rows[0];
+
+        const hashedPW = await bcrypt.hash(newPassword, 10);
+        await db.execute(`UPDATE HXY_CUSTOMER SET PASSWD = ? WHERE CUSTNO = ?`, [hashedPW, id]);
+
+        return res.status(200).json({ success: true, message: `Update successful` });
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: `Error` });
+    }
+}
+
+
 module.exports = {
     login,
     register,
-    setAdmin
+    setAdmin,
+    requestPasswordReset,
+    verifyPasswordResetToken,
+    resetPassword
 }

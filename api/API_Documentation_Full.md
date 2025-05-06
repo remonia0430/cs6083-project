@@ -1,5 +1,9 @@
 # API Documentation
 
+## 所有需要登录的request应加上请求头：
+key: Authorization  body: "Bearer "+登录时返回的token
+key: Content-Type   body: "application/json"
+
 ## Auth 模块
 
 ### register
@@ -48,6 +52,44 @@
     "isAdmin":0
 }
 ```
+
+### requestResetPassword
+- **方法**：PUT  
+- **URL**：`localhost:3000/api/auth/reset/request`  
+- **权限**：
+- **说明**：发送修改邮箱请求，先验证该邮箱是否注册，再向邮箱发送验证码；  
+- **请求体**：
+```json
+{
+    "email":"example@email.com"
+}
+```
+
+### verifyToken
+- **方法**：GET  
+- **URL**：`localhost:3000/api/auth/reset/verify`  
+- **权限**：
+- **说明**：验证输入的验证码
+- **请求体**：
+```json
+{
+    "token":"D73G8F",
+    "email":"example@email.com"
+}
+```
+
+### resetPassword
+- **方法**：PUT  
+- **URL**：`localhost:3000/api/auth/reset`  
+- **权限**：验证token
+- **说明**：更新密码  
+- **请求体**：
+```json
+{
+    "newPassword":"newPassword"
+}
+```
+
 
 
 ## Customer 模块
@@ -101,7 +143,7 @@
 - **方法**：PUT  
 - **URL**：`localhost:3000/api/customers/reset`  
 - **权限**：登录  
-- **说明**：更新密码（登陆）  
+- **说明**：用户主动更新密码，需要登录和旧密码  
 - **请求体**：
 ```json
 {
