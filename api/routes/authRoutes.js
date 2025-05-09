@@ -12,7 +12,7 @@ const {
 } = require("../controllers/authController");
 
 //login
-router.get("/login", login);
+router.post("/login", login);
 
 //register
 router.post("/register", register);
