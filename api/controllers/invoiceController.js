@@ -171,6 +171,7 @@ const getCustomerUnpaidInvoices = async (req, res) => {
         return res.status(500).json({ success: false, message: 'error' });
     }
 }
+
 const getMyUnpaidInvoices = async (req, res) => {
     const sql = `SELECT I.RENTID as RentNo,
                         C.CUSTNO as CustomerNo,

@@ -302,7 +302,8 @@ const addExhibition = async (req, res) => {
 }
 
 const registerExhibition = async(req, res) =>{
-    const {regID, eventID, userID} = req.body;
+    const {regID, eventID} = req.body;
+    const userID = req.user.id;
     if(!regID || !eventID || !userID) res.status(400).json({success: false, code: 100, message: 'event id and user id required'});
 
     try{

@@ -223,21 +223,21 @@ const addBook = async(req, res) => {
 }
 
 const addCopy = async(req, res) => {
-    const {bookID} = req.body;
+    const {bookNO} = req.body;
 
-    if(!bookID){
+    if(!bookNO){
         return res.status(400).json({ success: false, code: 100, message: 'Missing required fields' });
     }
 
     try{
         const book = "SELECT BOOKNO FROM HXY_BOOK WHERE BOOKNO = ? AND ISDELETED = 0;";
-        const [books] = await db.execute(book, [bookID]);
+        const [books] = await db.execute(book, [bookNO]);
         if(books.length === 0){
             return res.status(400).json({success: false, code: 102, message: 'Book not found'});
         }
         
         const sql = `INSERT INTO HXY_COPY(BOOKNO, STATUS) VALUE(?, "Available")`;
-        await db.execute(sql, [bookID]);
+        await db.execute(sql, [bookNO]);
 
         res.status(200).json({success: true, message: "Copy added"});
     }
@@ -273,20 +273,20 @@ const delBook = async (req, res) =>{
 }
 
 const delCopy = async (req, res) =>{
-    const {bookID, copyID} = req.body;
+    const {bookNO, copyNO} = req.body;
     const copy = `SELECT COPYNO FROM HXY_COPY c 
                     JOIN HXY_BOOK b ON b.BOOKNO = c.BOOKNO
                     WHERE c.BOOKNO = ? AND c.COPYNO = ? AND b.ISDELETED = 0`;
-    if(!bookID || !copyID){
+    if(!bookNO || !copyNO){
         return res.status(400).json({ success: false, code: 100, message: 'Missing required fields' });
     }
                 
     try{
-        const [copies] = await db.execute(copy, [bookID, copyID]);
+        const [copies] = await db.execute(copy, [bookNO, copyNO]);
         if(copies.length === 0){
             return res.status(400).json({success: false, code: 102, message: 'Copy not found'});
         }
-        await db.execute("UPDATE HXY_COPY SET ISDELETED = 1 WHERE BOOKNO = ? AND COPYNO = ?", [bookID, copyID]);
+        await db.execute("UPDATE HXY_COPY SET ISDELETED = 1 WHERE BOOKNO = ? AND COPYNO = ?", [bookNO, copyNO]);
         res.json({
             success: true,
             message: "copy deleted"

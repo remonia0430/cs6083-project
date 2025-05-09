@@ -173,9 +173,9 @@ const verifyPasswordResetToken = async (req, res) => {
 }
 
 const resetPassword = async (req, res) => {
-    const { newPassword } = req.body;
+    const { newPasswd } = req.body;
     const id = req.user.id;
-
+    const newPassword = newPasswd;
     if (!newPassword) {
         return res.status(400).json({ success: false, code: 100, message: 'newPassword required' });
     }

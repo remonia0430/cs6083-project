@@ -14,7 +14,7 @@ const myProfile = async (req, res) => {
                         C.IDTYPE as ID
                 FROM HXY_CUSTOMER C
                 WHERE C.CUSTNO = ?;`
-    const id = 1;
+    const id = req.user.id;
 
     try {
         const [customer] = await db.execute(sql, [id]);
@@ -124,8 +124,11 @@ const updateProfile = async (req, res) => {
 }
 
 const resetPassword = async (req, res) => {
-    const { oldPassword, newPassword } = req.body;
+    const { oldPasswd, newPasswd } = req.body;
     const id = req.user.id;
+
+    const oldPassword = oldPasswd;
+    const newPassword = newPasswd;
 
     if (!oldPassword || !newPassword) {
         return res.status(400).json({ success: false, code: 100, message: 'oldPassword and newPassword required' });

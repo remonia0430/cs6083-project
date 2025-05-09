@@ -32,8 +32,9 @@ const getById = async(req, res) => {
 }
 
 const getAvailableSlots = async (req, res) => {
-    const { roomID, date } = req.query;
-  
+    const { roomNO, date } = req.query;
+    const roomID = roomNO;
+    
     if (!roomID || !date) {
       return res.status(400).json({ success: false, code: 100, message: 'roomID and date required' });
     }
