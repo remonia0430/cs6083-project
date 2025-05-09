@@ -3,8 +3,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const login = async (req, res) => {
-    const { username, password } = req.body;
-
+    const { username, passwd } = req.body;
+    const password = passwd;
     const sql = `SELECT * FROM HXY_CUSTOMER WHERE USERNAME = ?`;
     const [rows] = await db.execute(sql, [username]);
 
