@@ -25,7 +25,7 @@ const login = async (req, res) => {
         { expiresIn: '2h' }
     );
 
-    res.status(200).json({ success: true, token });
+    res.status(200).json({ success: true, isAdmin: user.ISADMIN, token });
 };
 
 
