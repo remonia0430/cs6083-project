@@ -19,7 +19,7 @@ const login = async (req, res) => {
         return res.status(401).json({ success: false, message: 'Incorrect password' });
     }
     const token = jwt.sign(
-        { id: user.CUSTNO, isAdmin: user.ISADMIN === 1 },
+        { id: user.CUSTNO, isAdmin: user.IS_ADMIN === 1 },
         process.env.JWT_SECRET || 'secret',
         { expiresIn: '2h' }
     );
