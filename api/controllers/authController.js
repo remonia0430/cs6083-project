@@ -18,14 +18,13 @@ const login = async (req, res) => {
     if (!match) {
         return res.status(401).json({ success: false, message: 'Incorrect password' });
     }
-
     const token = jwt.sign(
         { id: user.CUSTNO, isAdmin: user.ISADMIN === 1 },
         process.env.JWT_SECRET || 'secret',
         { expiresIn: '2h' }
     );
-
-    res.status(200).json({ success: true, isAdmin: user.ISADMIN, token });
+    const isAdmin = user.ISADMIN === 1 ? true : false;
+    res.status(200).json({ success: true, isAdmin, token });
 };
 
 
