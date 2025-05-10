@@ -23,7 +23,7 @@ const login = async (req, res) => {
         process.env.JWT_SECRET || 'secret',
         { expiresIn: '2h' }
     );
-    const isAdmin = user.ISADMIN === 1 ? true : false;
+    const isAdmin = user.IS_ADMIN === 1 ? true : false;
     res.status(200).json({ success: true, isAdmin, token });
 };
 
