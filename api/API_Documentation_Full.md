@@ -245,6 +245,8 @@ key: Content-Type   body: "application/json"
 
 ## Event 模块
 
+### status: 0 for upcoming, 1 for cancelled, 2 for past
+
 ### getAllEvents
 - **方法**：GET  
 - **URL**：`https://cs6083-project.onrender.com/api/events?type=HXY_SEMINAR&sdate=&edate=`  
@@ -1470,7 +1472,20 @@ key: Content-Type   body: "application/json"
 - **说明**：无  
 - **请求参数**：
   - `id`: （示例：1）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "topics": [
+        {
+            "TOPICID": 1,
+            "TNAME": "Horror",
+            "ISDELETED": 0
+        }
+    ]
+}
+```
 
 ### getByName
 - **方法**：GET  
@@ -1479,7 +1494,20 @@ key: Content-Type   body: "application/json"
 - **说明**：无  
 - **请求参数**：
   - `name`: （示例：ho）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "topics": [
+        {
+            "TOPICID": 1,
+            "TNAME": "Horror",
+            "ISDELETED": 0
+        }
+    ]
+}
+```
 
 ### addTopic（管理员）
 - **方法**：POST  
