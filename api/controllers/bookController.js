@@ -374,6 +374,34 @@ const getMostBorrowed = async (req, res) => {
     }
 };
 
+const getMyBorrows = async(req, res) => {
+    const custNO = req.user.id;
+    
+    sql = `SELECT b.BOOKNO as BookNo,
+                    b.BNAME as Title,
+                    r.RENTID as RentID,
+                    r.BORROWDATE as BorrowDate,
+                    r.ERETURNDATE as EReturnDate,
+                    r.RSTATUS as Status
+            FROM HXY_BOOK b
+            JOIN HXY_RENTAL r ON b.BOOKNO = r.BOOKNO
+            WHERE r.CUSTNO = ?
+            GROUP BY b.BOOKNO, b.BNAME, r.RENTID, r.BORROWDATE, r.ERETURNDATE, r.RSTATUS
+            ORDER BY r.BORROWDATE DESC;`
+
+    try{
+        const [books] = await db.execute(sql, [custNO]);
+        res.status(200).json({
+            success: true,
+            message:"ok",
+            books
+        });
+    }
+    catch(err){
+        console.error(err);
+        return res.status(500).json({success: false, message: 'error'});
+    }
+}
 
 
 module.exports = {
@@ -381,11 +409,12 @@ module.exports = {
     getById,
     getByTitle,
     getByAuthor,
+    getMyBorrows,
+    getMostBorrowed,
     rentBook,
     returnBook,
     addBook,
     addCopy,
     delBook,
-    delCopy,
-    getMostBorrowed
+    delCopy
 }

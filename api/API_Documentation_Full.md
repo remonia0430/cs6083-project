@@ -1290,11 +1290,34 @@ key: Content-Type   body: "application/json"
 }
 ```
 
-### searchByAuthor
+### getMyBorrows
+- **方法**：GET  
+- **URL**：`https://cs6083-project.onrender.com/api/books/myborrows`  
+- **权限**：登录  
+- **说明**：获取当前登录账号名下的所有借阅记录
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "books": [
+        {
+            "BookNo": 1,
+            "Title": "Mystery of the Shadows",
+            "RentID": 10022,
+            "BorrowDate": "2025-05-11T04:00:00.000Z",
+            "EReturnDate": "2025-05-13T04:00:00.000Z",
+            "Status": "Borrowed"
+        }
+    ]
+}
+```
+
+### getMostBorrowed
 - **方法**：GET  
 - **URL**：`https://cs6083-project.onrender.com/api/books/trend`  
 - **权限**：无权限要求  
-- **说明**：无  
+- **说明**：获取借阅数量最多的前“count”本书籍，可进一步根据AuthorName和TopicNO筛选
 - **请求体**：
 ```json
 {
