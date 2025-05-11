@@ -25,7 +25,6 @@ key: Content-Type   body: "application/json"
 }
 ```
 
-
 ### login
 - **方法**：GET  
 - **URL**：`https://cs6083-project.onrender.com/api/auth/login`  
@@ -36,6 +35,14 @@ key: Content-Type   body: "application/json"
 {
     "username": "Admin",
     "passwd": "123456"
+}
+```
+- **返回值**：
+```json
+{
+  "success": true,
+  "isAdmin": false,
+  "token": token
 }
 ```
 
@@ -77,6 +84,15 @@ key: Content-Type   body: "application/json"
     "email":"example@email.com"
 }
 ```
+- **返回值**：
+```json
+{
+  "success": true,
+  "message": "Token is valid",
+  "token": token
+}
+```
+
 
 ### resetPassword
 - **方法**：PUT  
@@ -99,7 +115,29 @@ key: Content-Type   body: "application/json"
 - **URL**：`https://cs6083-project.onrender.com/api/customers`  
 - **权限**：管理员  
 - **说明**：获取所有customer信息（管理员）  
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "customers": [
+        {
+            "CUSTNO": 1,
+            "CFNAME": "pig",
+            "CLNAME": "piggy",
+            "PHONE": "987-654-3210",
+            "EMAIL": "admin.a@email.com",
+            "IDTYPE": "Passport",
+            "IDNO": "666",
+            "IS_ADMIN": 1,
+            "USERNAME": "Admin",
+            "PASSWD": "$2b$10$WvKay/jzmbUCxAoH1G0YvOoAuJ7XfDRS3DwKBHXo8YvkRNoxSM1HK",
+            "TOKEN": null,
+            "EXPIRATION": null
+        }
+      ]
+}
+``` 
 
 ### getById
 - **方法**：GET  
@@ -108,6 +146,16 @@ key: Content-Type   body: "application/json"
 - **说明**：获取用户基础信息  
 - **请求参数**：
   - `id`: （示例：1）
+- **返回值**：
+```json
+{
+  "success": true,
+  "customer": {
+    "Username": "Username",
+    "CustomerNO": "1"
+  }
+}
+```
 
 
 ### getInfoById（管理员）
@@ -117,6 +165,24 @@ key: Content-Type   body: "application/json"
 - **说明**：获取用户所有信息（管理员）  
 - **请求参数**：
   - `id`: （示例：1）
+- **返回值**：
+```json
+{
+  "success": true,
+  "customers": 
+    {
+      "CustomerNO": "1",
+      "Username": "Username",
+      "FirstName": "FirstName",
+      "LastName": "LastName",
+      "Phone": "123-456-7890",
+      "Email": "email@email.com",
+      "ID": "IDType",
+      "IDNo": "IDNO",
+      "IsAdmin": 0,
+    }
+}
+```
 
 
 ### updateProfile（登录）
@@ -158,6 +224,23 @@ key: Content-Type   body: "application/json"
 - **URL**：`https://cs6083-project.onrender.com/api/customers/me`  
 - **权限**：登录  
 - **说明**：获取当前登录用户的信息（登录）  
+- **返回值**：
+```json
+{
+  "success": true,
+  "customers": [
+    {
+      "Username": "Username",
+      "CustomerNO": "1",
+      "FirstName": "FirstName",
+      "LastName": "LastName",
+      "Phone": "123-456-7890",
+      "Email": "Email@email.com",
+      "ID": "IDType"
+      }
+  ]
+}
+```
 
 
 ## Event 模块
@@ -171,7 +254,25 @@ key: Content-Type   body: "application/json"
   - `type`: 留空时查所有type的event（示例：HXY_SEMINAR）
   - `sdate`: startDate，可单独使用查某日的event（示例：）
   - `edate`: endDate，用于和sdate合并为时间段，不可单独使用（示例：）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "events": [
+        {
+            "ENVENTID": 36,
+            "ENAME": "TESts111",
+            "ETYPE": "HXY_SEMINAR",
+            "STARTDATE": "2001-11-22T05:00:00.000Z",
+            "ENDDATE": "2023-11-22T05:00:00.000Z",
+            "TOPICID": 3,
+            "STATUS": 0,
+            "TopicName": "Science Fiction",
+            "AuthorName": "Sarah Taylor"
+        }
+    ]
+}
+```
 
 ### getBasicInfoById
 - **方法**：GET  
@@ -180,7 +281,26 @@ key: Content-Type   body: "application/json"
 - **说明**：根据eventID获取event的基本信息  
 - **请求参数**：
   - `id`: （示例：11）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "events": [
+        {
+            "ENVENTID": 11,
+            "ENAME": "Modern Art Exhibition",
+            "ETYPE": "HXY_EXHIBITION",
+            "STARTDATE": "2024-01-05T05:00:00.000Z",
+            "ENDDATE": "2024-01-07T05:00:00.000Z",
+            "TOPICID": 1,
+            "STATUS": 0,
+            "Topic": "Horror",
+            "Author": null
+        }
+    ]
+}
+```
 
 ### getAllInfoById（管理员）
 - **方法**：GET  
@@ -189,7 +309,28 @@ key: Content-Type   body: "application/json"
 - **说明**：获取包括赞助商、预算等全部信息（管理员）  
 - **请求参数**：
   - `id`: （示例：1）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "events": [
+        {
+            "ENVENTID": 1,
+            "ENAME": "AI Technology Seminar",
+            "ETYPE": "HXY_SEMINAR",
+            "STARTDATE": "2024-01-10T05:00:00.000Z",
+            "ENDDATE": "2024-01-12T05:00:00.000Z",
+            "TOPICID": 1,
+            "STATUS": 0,
+            "Topic": "Horror",
+            "Author": "James Smith,Michael Wilson,Robert Brown",
+            "Sponsor": "Emily Davis",
+            "Amount": "15000.00"
+        }
+    ]
+}
+```
 
 ### getByName
 - **方法**：GET  
@@ -198,6 +339,26 @@ key: Content-Type   body: "application/json"
 - **说明**：根据event名搜索  
 - **请求参数**：
   - `name`: （示例：ai）
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "events": [
+        {
+            "ENVENTID": 1,
+            "ENAME": "AI Technology Seminar",
+            "ETYPE": "HXY_SEMINAR",
+            "STARTDATE": "2024-01-10T05:00:00.000Z",
+            "ENDDATE": "2024-01-12T05:00:00.000Z",
+            "TOPICID": 1,
+            "STATUS": 0,
+            "TopicName": "Horror",
+            "Author": "James Smith, Michael Wilson, Robert Brown"
+        }
+    ]
+}
+```
 
 
 ### addSeminar（管理员）
@@ -281,7 +442,26 @@ key: Content-Type   body: "application/json"
 - **说明**：无  
 - **请求参数**：
   - `topicID`: （示例：3）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "events": [
+        {
+            "ENVENTID": 37,
+            "ENAME": "TEStEE111",
+            "ETYPE": "HXY_EXHIBITION",
+            "STARTDATE": "2001-11-22T05:00:00.000Z",
+            "ENDDATE": "2023-11-22T05:00:00.000Z",
+            "TOPICID": 3,
+            "STATUS": 0,
+            "TopicName": "Science Fiction",
+            "Author": null
+        }
+    ]
+}
+```
 
 ### getSeminarByAuthor
 - **方法**：GET  
@@ -290,7 +470,24 @@ key: Content-Type   body: "application/json"
 - **说明**：根据authorID获取seminar  
 - **请求参数**：
   - `author`: （示例：1）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "seminars": [
+        {
+            "ENVENTID": 1,
+            "ENAME": "AI Technology Seminar",
+            "ETYPE": "HXY_SEMINAR",
+            "STARTDATE": "2024-01-10T05:00:00.000Z",
+            "ENDDATE": "2024-01-12T05:00:00.000Z",
+            "TOPICID": 1,
+            "STATUS": 0,
+            "Author": "James Smith"
+        }
+    ]
+}
+```
 
 ## Invoices 模块
 
@@ -299,7 +496,22 @@ key: Content-Type   body: "application/json"
 - **URL**：`https://cs6083-project.onrender.com/api/invoices`  
 - **权限**：管理员  
 - **说明**：无  
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "invoices": [
+        {
+            "RENTID": 1,
+            "InvoiceDate": "2025-03-31T04:00:00.000Z",
+            "Amount": "0.80",
+            "CustomerNo": 1,
+            "CustomerName": "pig piggy"
+        }
+    ]
+}
+```
 
 ### getById（管理员）
 - **方法**：GET  
@@ -308,7 +520,25 @@ key: Content-Type   body: "application/json"
 - **说明**：无  
 - **请求参数**：
   - `id`: （示例：1）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "invoices": [
+        {
+            "RENTNo": 1,
+            "InvoiceDate": "2025-03-31T04:00:00.000Z",
+            "Amount": "0.80",
+            "CustomerNo": 1,
+            "CustomerName": "pig piggy",
+            "PaidAmount": "0.80",
+            "RemainingAmount": "0.00",
+            "IsPaid": 1
+        }
+    ]
+}
+```
 
 ### getByCustomer（管理员）
 - **方法**：GET  
@@ -317,7 +547,25 @@ key: Content-Type   body: "application/json"
 - **说明**：无  
 - **请求参数**：
   - `id`: （示例：1）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "invoices": [
+        {
+            "RENTNo": 1,
+            "InvoiceDate": "2025-03-31T04:00:00.000Z",
+            "Amount": "0.80",
+            "CustomerNo": 1,
+            "CustomerName": "pig piggy",
+            "PaidAmount": "0.80",
+            "RemainingAmount": "0.00",
+            "IsPaid": 1
+        }
+    ]
+}
+```
 
 ### getInvoiceStatus（管理员）
 - **方法**：GET  
@@ -326,7 +574,23 @@ key: Content-Type   body: "application/json"
 - **说明**：查看invoice是否全额支付及剩余额度  
 - **请求参数**：
   - `rentId`: （示例：1）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "payments": [
+        {
+            "RentNo": 1,
+            "CustomerNo": 1,
+            "PaidAmount": "0.80",
+            "InvoiceAmount": "0.80",
+            "IsPaid": 1,
+            "RemainingAmount": "0.00"
+        }
+    ]
+}
+```
 
 ### getCustomerUnpaid（管理员）
 - **方法**：GET  
@@ -335,28 +599,91 @@ key: Content-Type   body: "application/json"
 - **说明**：根据custid获取未支付invoice  
 - **请求参数**：
   - `id`: （示例：3）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "invoices": [
+        {
+            "RentNo": 2,
+            "CustomerNo": 3,
+            "InvoiceAmount": "1602.20",
+            "PaidAmount": "0",
+            "RemainingAmount": "1602.20"
+        }
+    ]
+}
+```
 
 ### getUnpaid（管理员）
 - **方法**：GET  
 - **URL**：`https://cs6083-project.onrender.com/api/invoices/unpaid`  
 - **权限**：管理员  
 - **说明**：获取所有未支付invoice  
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "invoices": [
+        {
+            "RentNo": 2,
+            "CustomerNo": 3,
+            "InvoiceAmount": "1602.20",
+            "PaidAmount": "0",
+            "RemainingAmount": "1602.20"
+        }
+    ]
+}
+```
 
 ### getMyInvoice（登录）
 - **方法**：GET  
 - **URL**：`https://cs6083-project.onrender.com/api/invoices/my`  
 - **权限**：登录  
 - **说明**：获取当前用户的所有invoice  
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "invoices": [
+        {
+            "RENTNo": 1,
+            "InvoiceDate": "2025-03-31T04:00:00.000Z",
+            "Amount": "0.80",
+            "CustomerNo": 1,
+            "CustomerName": "pig piggy",
+            "PaidAmount": "0.80",
+            "RemainingAmount": "0.00",
+            "IsPaid": 1
+        }
+    ]
+}
+```
 
 ### getMyUnpaidInvoice（登录）
 - **方法**：GET  
 - **URL**：`https://cs6083-project.onrender.com/api/invoices/my/unpaid`  
 - **权限**：登录  
 - **说明**：获取当前用户未支付invoice  
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "invoices": [
+        {
+            "RentNo": 1,
+            "CustomerNo": 1,
+            "InvoiceAmount": "0.80",
+            "PaidAmount": "0.80",
+            "RemainingAmount": "0.00"
+        }
+    ]
+}
+```
 
 ## Payment 模块
 
@@ -365,7 +692,35 @@ key: Content-Type   body: "application/json"
 - **URL**：`https://cs6083-project.onrender.com/api/payments/my`  
 - **权限**：登录  
 - **说明**：获取当前用户的所有支付记录  
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "payments": [
+        {
+            "PaymentId": 1,
+            "PayDate": "2025-04-01T04:00:00.000Z",
+            "Method": "Cash",
+            "Amount": "0.80",
+            "RentNo": 1,
+            "CustomerNo": 1,
+            "CreditCardName": null,
+            "CustomerName": "pig piggy"
+        },
+        {
+            "PaymentId": 11,
+            "PayDate": "2025-05-02T04:00:00.000Z",
+            "Method": "Cash",
+            "Amount": "0.00",
+            "RentNo": 26,
+            "CustomerNo": 1,
+            "CreditCardName": null,
+            "CustomerName": "pig piggy"
+        }
+    ]
+}
+```
 
 ### getAllPayment（管理员）
 - **方法**：GET  
@@ -375,7 +730,25 @@ key: Content-Type   body: "application/json"
 - **请求参数**：
   - `sdate`: （示例：2025-03-01）
   - `edate`: （示例：2025-05-02）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "payments": [
+        {
+            "PaymentId": 11,
+            "PayDate": "2025-05-02T04:00:00.000Z",
+            "Method": "Cash",
+            "Amount": "0.00",
+            "RentNo": 26,
+            "CustomerNo": 1,
+            "CreditCardName": null,
+            "CustomerName": "pig piggy"
+        }
+    ]
+}
+```
 
 ### getPaymentById（管理员）
 - **方法**：GET  
@@ -384,7 +757,25 @@ key: Content-Type   body: "application/json"
 - **说明**：无  
 - **请求参数**：
   - `id`: （示例：1）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "payments": [
+        {
+            "PaymentId": 1,
+            "PayDate": "2025-04-01T04:00:00.000Z",
+            "Method": "Cash",
+            "Amount": "0.80",
+            "RentNo": 1,
+            "CustomerNo": 1,
+            "CreditCardName": null,
+            "CustomerName": "pig piggy"
+        }
+    ]
+}
+```
 
 ### getByInvoice（管理员）
 - **方法**：GET  
@@ -393,7 +784,25 @@ key: Content-Type   body: "application/json"
 - **说明**：无  
 - **请求参数**：
   - `id`: （示例：1）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "payments": [
+        {
+            "PaymentId": 1,
+            "PayDate": "2025-04-01T04:00:00.000Z",
+            "Method": "Cash",
+            "PaidAmount": "0.80",
+            "RentNo": 1,
+            "CustomerNo": 1,
+            "CreditCardName": null,
+            "CustomerName": "pig piggy"
+        }
+    ]
+}
+```
 
 ### getByCustomerId（管理员）
 - **方法**：GET  
@@ -402,7 +811,25 @@ key: Content-Type   body: "application/json"
 - **说明**：获取某customer对应的所有支付  
 - **请求参数**：
   - `id`: （示例：1）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "payments": [
+        {
+            "PaymentId": 11,
+            "PayDate": "2025-05-02T04:00:00.000Z",
+            "Method": "Cash",
+            "Amount": "0.00",
+            "RentNo": 26,
+            "CustomerNo": 1,
+            "CreditCardName": null,
+            "CustomerName": "pig piggy"
+        }
+    ]
+}
+```
 
 ### makePayment（登录）
 - **方法**：POST  
@@ -432,14 +859,52 @@ key: Content-Type   body: "application/json"
     "rdate": null
 }
 ```
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "code": 0,
+    "result": [
+        {
+            "RESID": 25,
+            "TOPIC": "birthday party",
+            "RESDATE": "2035-10-31T04:00:00.000Z",
+            "STARTTIME": "15:00:00",
+            "ENDTIME": "16:00:00",
+            "NOI": 2,
+            "CUSTNO": 1,
+            "ROOMNO": 103,
+            "ISACTIVE": 0
+        }
+    ]
+}
+```
 
 ### getAllReservation（管理员）
 - **方法**：GET  
 - **URL**：`https://cs6083-project.onrender.com/api/reservations`  
 - **权限**：管理员  
 - **说明**：无  
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "reservations": [
+        {
+            "RESID": 25,
+            "TOPIC": "birthday party",
+            "RESDATE": "2035-10-31T04:00:00.000Z",
+            "STARTTIME": "15:00:00",
+            "ENDTIME": "16:00:00",
+            "NOI": 2,
+            "CUSTNO": 1,
+            "ROOMNO": 103,
+            "ISACTIVE": 0
+        }
+    ]
+}
+```
 
 ### getById（管理员）
 - **方法**：GET  
@@ -448,7 +913,25 @@ key: Content-Type   body: "application/json"
 - **说明**：无  
 - **请求参数**：
   - `id`: （示例：1）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "reservations": [
+        {
+            "RESID": 3,
+            "TOPIC": "AI Ethics Discussion",
+            "RESDATE": "2024-03-15T04:00:00.000Z",
+            "STARTTIME": "10:00:00",
+            "ENDTIME": "12:00:00",
+            "NOI": 3,
+            "CUSTNO": 1,
+            "ROOMNO": 105,
+            "ISACTIVE": 1
+        }
+    ]
+}
+```
 
 ### searchReservation（管理员）
 - **方法**：GET  
@@ -463,7 +946,26 @@ key: Content-Type   body: "application/json"
     "rdate" : "2024-01-05"
 }
 ```
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "code": 0,
+    "result": [
+        {
+            "RESID": 1,
+            "TOPIC": "Machine Learning Study",
+            "RESDATE": "2024-01-05T05:00:00.000Z",
+            "STARTTIME": "09:00:00",
+            "ENDTIME": "11:00:00",
+            "NOI": 4,
+            "CUSTNO": 1,
+            "ROOMNO": 101,
+            "ISACTIVE": 1
+        }
+    ]
+}
+```
 
 ### makeReservation（登录）
 - **方法**：POST  
@@ -499,7 +1001,19 @@ key: Content-Type   body: "application/json"
 - **URL**：`https://cs6083-project.onrender.com/api/rooms`  
 - **权限**：无权限要求  
 - **说明**：无  
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "rooms": [
+        {
+            "ROOMNO": 101,
+            "CAPACITY": 50
+        }
+    ]
+}
+```
 
 ### getByID
 - **方法**：GET  
@@ -508,7 +1022,20 @@ key: Content-Type   body: "application/json"
 - **说明**：无  
 - **请求参数**：
   - `id`: （示例：102）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "rooms": [
+        {
+            "ROOMNO": 102,
+            "CAPACITY": 12,
+            "ISDELETED": 0
+        }
+    ]
+}
+```
 
 ### getAvailableSlots
 - **方法**：GET  
@@ -522,6 +1049,19 @@ key: Content-Type   body: "application/json"
 ```json
 {
     "capacity": 99
+}
+```
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "slots": [
+        {
+            "start": "09:00:00",
+            "end": "10:00:00"
+        }
+    ]
 }
 ```
 
@@ -556,7 +1096,19 @@ key: Content-Type   body: "application/json"
 - **URL**：`https://cs6083-project.onrender.com/api/author`  
 - **权限**：无权限要求  
 - **说明**：无  
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "authors": [
+        {
+            "AUTHNO": 12,
+            "NAME": "updatef updatel"
+        }
+    ]
+}
+```          
 
 ### getByID
 - **方法**：GET  
@@ -565,6 +1117,25 @@ key: Content-Type   body: "application/json"
 - **说明**：根据id获取author详细信息（管理员）  
 - **请求参数**：
   - `id`: （示例：1）
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "authors": [
+        {
+            "AUTHNO": 1,
+            "AFNAME": "James",
+            "ALNAME": "Smith",
+            "STREET": "100 Maple St",
+            "CITY": "Boston",
+            "ZIPCODE": "02108",
+            "EMAIL": "james.smith@example.com",
+            "ISDELETED": 0
+        }
+    ]
+}
+```
 
 
 ### addAuthor（管理员）
@@ -623,7 +1194,22 @@ key: Content-Type   body: "application/json"
 - **URL**：`https://cs6083-project.onrender.com/api/books`  
 - **权限**：无权限要求  
 - **说明**：无  
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "books": [
+        {
+            "BookNo": 15,
+            "Title": "hahahaha",
+            "Topic": "Romance",
+            "Author": "Sarah Taylor",
+            "AvailableAmount": 0
+        }
+    ]
+}
+```
 
 ### getById
 - **方法**：GET  
@@ -632,7 +1218,27 @@ key: Content-Type   body: "application/json"
 - **说明**：无  
 - **请求参数**：
   - `id`: （示例：1）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "book": {
+        "BookNo": 1,
+        "Title": "Mystery of the Shadows",
+        "Topic": "Horror",
+        "Author": "James Smith",
+        "AvailableAmount": 0,
+        "copies": [
+            {
+                "COPYNO": 3,
+                "STATUS": "Not Available",
+                "BOOKNO": 1,
+                "ISDELETED": 0
+            }
+        ]
+    }
+}
+```
 
 ### searchByTitle
 - **方法**：GET  
@@ -641,7 +1247,22 @@ key: Content-Type   body: "application/json"
 - **说明**：无  
 - **请求参数**：
   - `title`: 书名关键词（示例：py）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "books": [
+        {
+            "BookNo": 5,
+            "Title": "History of the Internet",
+            "Topic": "Children",
+            "Author": "Robert Brown",
+            "AvailableAmount": 0
+        }
+    ]
+}
+```
 
 ### searchByAuthor
 - **方法**：GET  
@@ -650,7 +1271,22 @@ key: Content-Type   body: "application/json"
 - **说明**：无  
 - **请求参数**：
   - `author`: （示例：smith）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "books": [
+        {
+            "BookNo": 9,
+            "Title": "Financial Planning 101",
+            "Topic": "Mystery",
+            "Author": "James Smith",
+            "AvailableAmount": 0
+        }
+    ]
+}
+```
 
 ### rentBook（登录）
 - **方法**：POST  
@@ -739,7 +1375,25 @@ key: Content-Type   body: "application/json"
 - **URL**：`https://cs6083-project.onrender.com/api/sponsors`  
 - **权限**：管理员  
 - **说明**：无  
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "sponsors": [
+        {
+            "SponsorNo": 10,
+            "SponsorType": "HXY_INDIVIDUAL",
+            "SponsorName": "Daniel Garcia"
+        },
+        {
+            "SponsorNo": 11,
+            "SponsorType": "HXY_ORGANIZATION",
+            "SponsorName": "Global Tech Solutions"
+        }
+    ]
+}
+```
 
 ### getByID（管理员）
 - **方法**：GET  
@@ -748,7 +1402,20 @@ key: Content-Type   body: "application/json"
 - **说明**：无  
 - **请求参数**：
   - `id`: （示例：1）
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "sponsors": [
+        {
+            "SponsorNo": 1,
+            "SponsorType": "HXY_INDIVIDUAL",
+            "SponsorName": "John Doe"
+        }
+    ]
+}
+```
 
 ### addSponsor（管理员）
 - **方法**：POST  
@@ -781,7 +1448,20 @@ key: Content-Type   body: "application/json"
 - **URL**：`https://cs6083-project.onrender.com/api/topics`  
 - **权限**：无权限要求  
 - **说明**：无  
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "topics": [
+        {
+            "TOPICID": 1,
+            "TNAME": "Horror",
+            "ISDELETED": 0
+        }
+    ]
+}
+```
 
 ### getById
 - **方法**：GET  

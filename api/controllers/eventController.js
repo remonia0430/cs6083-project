@@ -90,13 +90,13 @@ const getFullInfoById = async(req, res) => {
         if(typeCheck[0].type === "HXY_SEMINAR"){
             sql = `SELECT e.*,
                                 t.TNAME AS Topic,
-                                CONCAT(a.AFNAME, ' ', a.ALNAME) AS Author,
+                                GROUP_CONCAT(DISTINCT CONCAT(a.AFNAME, ' ', a.ALNAME) SEPARATOR ",")AS Author,
                                 CASE 
                                     WHEN s.STYPE = 'HXY_ORGANIZAITON' THEN os.ONAME
-                                    WHEN s.STYPE = 'HXY_INDIVIDUAL' THEN CONCAT(ps.SFNAME, ' ', ps.SLNAME)
+                                    WHEN s.STYPE = 'HXY_INDIVIDUAL' THEN GROUP_CONCAT(DISTINCT CONCAT(ps.SFNAME, ' ', ps.SLNAME) SEPARATOR ",")
                                     ELSE NULL
-                                END AS Sponsor
-                                es.AMOUNT AS Amount,
+                                END AS Sponsor,
+                                es.AMOUNT AS Amount
                         FROM HXY_EVENT e
                         JOIN HXY_TOPIC t ON e.TOPICID = t.TOPICID
                         LEFT JOIN HXY_AUTHOR_SEMINAR sa ON sa.ENVENTID = e.ENVENTID
@@ -106,6 +106,7 @@ const getFullInfoById = async(req, res) => {
                         LEFT JOIN HXY_ORGANIZATION os ON s.STYPE = 'HXY_ORGANIZATION' AND es.SPONSORNO = os.SPONSORNO
                         LEFT JOIN HXY_INDIVIDUAL ps ON s.STYPE = 'HXY_INDIVIDUAL' AND es.SPONSORNO = ps.SPONSORNO
                         WHERE e.ENVENTID = ?
+                        GROUP BY e.ENVENTID
                         `
         }
         else{
@@ -138,7 +139,7 @@ const getByName = async(req, res) => {
                             t.TNAME AS TopicName,
                             CASE 
                                 WHEN e.ETYPE = 'HXY_SEMINAR' 
-                                THEN CONCAT(a.AFNAME, ' ', a.ALNAME)
+                                THEN GROUP_CONCAT(DISTINCT CONCAT(a.AFNAME, ' ', a.ALNAME) SEPARATOR ', ')
                                 ELSE NULL
                             END AS Author
                     FROM HXY_EVENT e

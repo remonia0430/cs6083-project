@@ -189,7 +189,8 @@ const getMyUnpaidInvoices = async (req, res) => {
                 LEFT JOIN HXY_RENTAL R ON R.RENTID = I.RENTID
                 LEFT JOIN HXY_CUSTOMER C ON C.CUSTNO = R.CUSTNO
                 WHERE C.CUSTNO = ?
-                GROUP BY I.RENTID;`
+                GROUP BY I.RENTID
+                HAVING RemainingAmount > 0;`
     const id = req.user.id;
 
     if (!id) return res.status(400).json({ success: false, code: 100, message: 'id required' });
@@ -222,7 +223,7 @@ const getUnpaidInvoices = async (req, res) => {
                 LEFT JOIN HXY_RENTAL R ON R.RENTID = I.RENTID
                 LEFT JOIN HXY_CUSTOMER C ON C.CUSTNO = R.CUSTNO
                 GROUP BY I.RENTID, C.CUSTNO, I.INVAMOUNT
-                HAVING RemainingAmount > 0;`
+                HAVING ROUND(I.INVAMOUNT - COALESCE(SUM(P.PAYAMOUNT), 0), 2) > 0;`
 
     try {
         const [invoices] = await db.execute(sql);
