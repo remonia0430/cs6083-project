@@ -1299,7 +1299,8 @@ key: Content-Type   body: "application/json"
 ```json
 {
     "time": "week", (可选值：day/week/month, 默认week)
-    "author": "smith",
+    "authorName": "smith",
+    "topicNO": 6,
     "count": 5
 }
 ```
@@ -1314,7 +1315,7 @@ key: Content-Type   body: "application/json"
             "Title": "Financial Planning 101",
             "Topic": "Mystery",
             "Author": "James Smith",
-            "AvailableAmount": 0
+            "BorrowedAmount": 0
         }
     ]
 }
