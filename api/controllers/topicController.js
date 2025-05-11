@@ -1,7 +1,7 @@
 const db = require("../config/DBconfig");
 
 const getAllTopics = async(req, res) => {
-    const sql = "SELECT * FROM HXY_TOPIC";
+    const sql = "SELECT * FROM HXY_TOPIC WHERE ISDELETED = 0";
 
     try{
         const [topics] = await db.execute(sql);

@@ -298,6 +298,83 @@ const delCopy = async (req, res) =>{
     }
 }
 
+const getMostBorrowed = async (req, res) => {
+    const sqlMain = `
+        SELECT b.BOOKNO as BookNo,
+            b.BNAME as Title,
+            GROUP_CONCAT(DISTINCT CONCAT(a.AFNAME, ' ', a.ALNAME) SEPARATOR ', ') as Author,
+            t.TNAME as Topic,
+            COUNT(r.RENTID) as BorrowedAmount
+        FROM HXY_BOOK b
+        JOIN HXY_BOOK_AUTHOR ba ON b.BOOKNO = ba.BOOKNO
+        JOIN HXY_AUTHOR a ON ba.AUTHNO = a.AUTHNO
+        JOIN HXY_RENTAL r ON b.BOOKNO = r.BOOKNO
+        JOIN HXY_TOPIC t ON b.TOPICID = t.TOPICID
+        WHERE r.BORROWDATE >= ?`;
+
+    const sqlTopic = ` AND b.TOPICID = `;
+    const sqlGroup = ` GROUP BY b.BOOKNO, b.BNAME, t.TNAME `;
+    const sqlEnd = ` ORDER BY BorrowedAmount DESC LIMIT `;
+
+    // 获取参数
+    let { time, topicNO, count, authorName } = req.body;
+
+    const today = new Date();
+    const sTime = new Date();
+    if (time === "month") {
+        sTime.setDate(today.getDate() - 30);
+    } else if (time === "year") {
+        sTime.setDate(today.getDate() - 365);
+    } else {
+        sTime.setDate(today.getDate() - 7);
+    }
+
+    if(count){
+        count = parseInt(count);
+    }
+    else{
+        count = "5";
+    }
+
+    let SQL = sqlMain;
+    let attr = [sTime];
+
+    if (topicNO) {
+        SQL += sqlTopic;
+        SQL += parseInt(topicNO);
+    }
+
+    SQL += sqlGroup;
+
+    if (authorName) {
+        SQL += ` HAVING GROUP_CONCAT(DISTINCT CONCAT(a.AFNAME, ' ', a.ALNAME) SEPARATOR ', ') LIKE '%${authorName}%'`;
+    }
+
+    if (count) {
+        SQL += sqlEnd;
+        SQL += parseInt(count);
+        SQL += ";";
+    }
+    else {
+        SQL += sqlEnd;
+        SQL += "5";
+        SQL += ";";
+    }
+
+    try {
+        const [books] = await db.execute(SQL, attr);
+        res.status(200).json({
+            success: true,
+            message: "ok",
+            books
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, message: 'error' });
+    }
+};
+
+
 
 module.exports = {
     getAllBooks,
@@ -309,5 +386,6 @@ module.exports = {
     addBook,
     addCopy,
     delBook,
-    delCopy
+    delCopy,
+    getMostBorrowed
 }

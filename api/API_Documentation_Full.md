@@ -1290,6 +1290,37 @@ key: Content-Type   body: "application/json"
 }
 ```
 
+### searchByAuthor
+- **方法**：GET  
+- **URL**：`https://cs6083-project.onrender.com/api/books/trend`  
+- **权限**：无权限要求  
+- **说明**：无  
+- **请求体**：
+```json
+{
+    "time": "week", (可选值：day/week/month, 默认week)
+    "author": "smith",
+    "count": 5
+}
+```
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "books": [
+        {
+            "BookNo": 9,
+            "Title": "Financial Planning 101",
+            "Topic": "Mystery",
+            "Author": "James Smith",
+            "AvailableAmount": 0
+        }
+    ]
+}
+```
+
+
 ### rentBook（登录）
 - **方法**：POST  
 - **URL**：`https://cs6083-project.onrender.com/api/books/rental/rent`  

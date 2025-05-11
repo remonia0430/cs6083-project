@@ -12,7 +12,8 @@ const {
     addBook,
     addCopy,
     delBook,
-    delCopy
+    delCopy,
+    getMostBorrowed
 } = require("../controllers/bookController");
 
 //get all books
@@ -26,6 +27,8 @@ router.get("/search", getByTitle);
 
 //search by author
 router.get("/search/author", getByAuthor);
+
+router.get("/trend", getMostBorrowed);
 
 //rent a book
 router.post("/rental/rent", verifyToken, rentBook);
