@@ -400,6 +400,7 @@ const getMyBorrows = async(req, res) => {
     
     sql = `SELECT b.BOOKNO as BookNo,
                     b.BNAME as Title,
+                    r.COPYNO as CopyNo,
                     r.RENTID as RentID,
                     r.BORROWDATE as BorrowDate,
                     r.ERETURNDATE as EReturnDate,
