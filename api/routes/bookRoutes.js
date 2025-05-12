@@ -7,6 +7,7 @@ const {
     getByTitle,
     getById,
     getByAuthor,
+    getByTopic,
     getMostBorrowed,
     getMyBorrows,
     rentBook,
@@ -28,6 +29,8 @@ router.get("/search", getByTitle);
 
 //search by author
 router.get("/search/author", getByAuthor);
+
+router.get("/search/topic", getByTopic);
 
 router.get("/trend", getMostBorrowed);
 

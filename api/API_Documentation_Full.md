@@ -1290,6 +1290,31 @@ key: Content-Type   body: "application/json"
 }
 ```
 
+### searchByTopic
+- **方法**：GET  
+- **URL**：`https://cs6083-project.onrender.com/api/books/search/topic?topic=1`  
+- **权限**：无权限要求  
+- **说明**：无  
+- **请求参数**：
+  - `topic`: （示例：1）
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "books": [
+        {
+            "BookNo": 9,
+            "Title": "Financial Planning 101",
+            "Topic": "Mystery",
+            "Author": "James Smith",
+            "AvailableAmount": 0
+        }
+    ]
+}
+```
+
+
 ### getMyBorrows
 - **方法**：GET  
 - **URL**：`https://cs6083-project.onrender.com/api/books/myborrows`  

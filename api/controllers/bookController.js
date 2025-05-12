@@ -1,6 +1,5 @@
 const db = require("../config/DBconfig");
 
-
 const bookInfo = `SELECT 
                     b.BOOKNO as BookNo,
                     b.BNAME as Title,
@@ -114,6 +113,28 @@ const getByAuthor = async(req, res) => {
         return res.status(500).json({success: false, message: 'error'});
     }
 }
+
+const getByTopic = async(req, res) => {
+    const topic = req.query.topic;
+    if(!topic) return res.status(400).json({success: false, code: 100, message: "Book topic required"});
+
+    const sql = `${bookInfo}
+                WHERE b.TOPICID = ? AND b.ISDELETED = 0
+                ${bookGroup};`
+    try{
+        const [books] = await db.execute(sql, [topic]);
+        res.status(200).json({
+            success: true, 
+            message:"ok", 
+            books
+        });
+    }
+    catch(err){
+        console.error(err);
+        return res.status(500).json({success: false, message: 'error'});
+    }
+}
+
 
 const rentBook = async(req, res) => {
     const {bookNO, copyNO, EReturnDate} = req.body;
@@ -409,6 +430,7 @@ module.exports = {
     getById,
     getByTitle,
     getByAuthor,
+    getByTopic,
     getMyBorrows,
     getMostBorrowed,
     rentBook,
