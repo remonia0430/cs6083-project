@@ -84,7 +84,7 @@ const getReservation = async(req, res) => {
 }
 
 const myReservation = async(req, res) => {
-    const {roomNO, rdate} = req.body;
+    const {roomNO, rdate} = req.query;
 
     let sql = `SELECT * FROM HXY_RESERVATION WHERE CUSTNO = ? `;
     const custNO = req.user.id;
