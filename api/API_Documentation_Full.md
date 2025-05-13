@@ -382,8 +382,8 @@ key: Content-Type   body: "application/json"
 }
 ```
 
-### addExhibition（管理员）
-- **方法**：POST  
+### getAllRegistered（管理员）
+- **方法**：GET  
 - **URL**：`https://cs6083-project.onrender.com/api/events/exhibition/regs?id=11`  
 - **权限**：管理员  
 - **说明**：根据eventID获取所有注册此exhibition的customer，返回联系方式，后期可用于活动开始前发消息/邮件  
@@ -1419,7 +1419,18 @@ key: Content-Type   body: "application/json"
     "copyNO": 1
 }
 ```
-
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "invoice": {
+        "RENTID": 10032,
+        "INVDATE": "2025-05-13T04:00:00.000Z",
+        "INVAMOUNT": "0.00"
+    }
+}
+```
 
 ### addBook（管理员）
 - **方法**：POST  
@@ -1641,7 +1652,8 @@ error code:
 104: 密码错误
 105: 房间容量不足
 106: 时间范围非法
-
+666: 借书数量太多
+667: 有未支付invoice
 
 #相关http状态码：
 200正常

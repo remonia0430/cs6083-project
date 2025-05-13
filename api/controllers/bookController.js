@@ -154,14 +154,35 @@ const rentBook = async(req, res) => {
         return res.status(400).json({ success: false, code: 100, message: 'Missing required fields' });
     }
 
+    const borrowCheck = `SELECT 
+                            COUNT(DISTINCT R.RENTID) AS RentCount
+                        FROM HXY_RENTAL R
+                        WHERE R.CUSTNO = ? AND R.RSTATUS != 'Returned'
+                        ;`
+    const invoiceCheck = `SELECT 
+                            SUM(I.INVAMOUNT) - SUM(IFNULL(P.PAYAMOUNT, 0)) AS InvoiceAmount
+                        FROM HXY_RENTAL R
+                        JOIN HXY_INVOICE I ON R.RENTID = I.RENTID
+                        LEFT JOIN HXY_PAYMENT P ON I.RENTID = P.RENTID
+                        WHERE R.CUSTNO = ?
+                        ;`
+                            
     const checkSQL = `SELECT STATUS as status FROM HXY_COPY WHERE COPYNO = ? AND BOOKNO = ? AND ISDELETED = 0`
     const curDate = new Date();
     const erdate = new Date(EReturnDate);
     const conn = await db.getConnection();
     try{
+        const [b] = await conn.execute(borrowCheck, [custNO]);
+        if(b[0].RentCount >= 5){
+            return res.status(400).json({success: false, code: 666, message: "User has too many rentals"});
+        }
+        const [i] = await conn.execute(invoiceCheck, [custNO]);
+        if(i[0].InvoiceAmount > 0){
+            return res.status(400).json({success: false, code: 667, message: "User has unpaid invoices"});
+        }
+
         const [check] = await conn.execute(checkSQL, [copyNO, bookNO]);
         
-        console.log(check[0].status);
         if(check.length === 0){
             return res.status(400).json({success: false, code: 102, message: "Copy doesn't exist"});
         }
@@ -174,11 +195,12 @@ const rentBook = async(req, res) => {
                             VALUE("Borrowed", ?, ?, ?, ?, ?)`
         const updateSQL = `UPDATE HXY_COPY SET STATUS = "Not Available" WHERE COPYNO = ? AND BOOKNO = ?`;
 
-        (await conn).execute(rentalSQL, [curDate, erdate, copyNO, bookNO, custNO]);
-        (await conn).execute(updateSQL, [copyNO, bookNO]);
+        const [result] = await conn.execute(rentalSQL, [curDate, erdate, copyNO, bookNO, custNO]);
+        const rentalID = result.insertId;
 
+        (await conn).execute(updateSQL, [copyNO, bookNO]);
         await conn.commit();
-        res.status(200).json({success: true, message:"ok"});
+        res.status(200).json({success: true, message:"ok", RentID: rentalID});
     }
     catch(err){
         console.error(err);
@@ -205,14 +227,22 @@ const returnBook = async(req, res) => {
         }
 
         (await conn).beginTransaction();
-        const returnSQL = `UPDATE HXY_RENTAL SET RSTATUS = "Returned" , ARETURNDATE = ? WHERE COPYNO = ? AND BOOKNO = ? AND CUSTNO = ?`
+
+        const rentalSQL = "SELECT * FROM HXY_RENTAL WHERE COPYNO = ? AND BOOKNO = ? AND CUSTNO = ? AND RSTATUS = 'Borrowed'";
+
+        const [rental] = await conn.execute(rentalSQL, [copyNO, bookNO, custNO]);
+        const rentalID = rental[0].RENTID;
+
+        const returnSQL = `UPDATE HXY_RENTAL SET RSTATUS = "Returned" , ARETURNDATE = ? WHERE RENTID = ?`
         const updateSQL = `UPDATE HXY_COPY SET STATUS = "Available" WHERE COPYNO = ? AND BOOKNO = ?`;
 
-        (await conn).execute(returnSQL, [curDate, copyNO, bookNO, custNO]);
+        (await conn).execute(returnSQL, [curDate, rentalID]);
         (await conn).execute(updateSQL, [copyNO, bookNO]);
+        const invoiceSQL = `SELECT * FROM HXY_INVOICE WHERE RENTID = ?`;
+        const [invoice] = await conn.execute(invoiceSQL, [rentalID]);
 
         await conn.commit();
-        res.status(200).json({success: true, message:"ok"});
+        res.status(200).json({success: true, message:"ok", invoice: invoice[0]});
     }
     catch(err){
         console.error(err);
