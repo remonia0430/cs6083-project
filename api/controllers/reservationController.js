@@ -132,7 +132,6 @@ const makeReservation = async (req, res) => {
         const rDate = dayjs(resDate, 'YYYY-MM-DD').format('YYYY-MM-DD');
         const sTime = dayjs(startTime, "HH:mm:ss").format('HH:mm:ss');
         const eTime = dayjs(endTime, "HH:mm:ss").format('HH:mm:ss');
-        console.log({ rDate, sTime, eTime });
         if (sTime >= eTime) {
             return res.status(400).json({ success: false, code: 106, message: 'Invalid time range' });
         }
@@ -156,7 +155,7 @@ const makeReservation = async (req, res) => {
             INSERT INTO HXY_RESERVATION (ROOMNO, CUSTNO, RESDATE, STARTTIME, ENDTIME, TOPIC, NOI, ISACTIVE)
             VALUES (?, ?, ?, ?, ?, ?, ?, 1)
         `;
-        const custNO = req.user?.custno || 1; 
+        const custNO = req.user.id; 
     
         await db.execute(insertSQL, [roomNO, custNO, rDate, sTime, eTime, topic, noi]);
     
