@@ -13,7 +13,8 @@ const {
     cancelRegirtration,
     addExhibition,
     addSeminar,
-    cancelEvent
+    cancelEvent,
+    getEventRegistrations
 } = require("../controllers/eventController");
 
 /* EVENTS */
@@ -42,6 +43,8 @@ router.get("/seminar/author", getSeminarByAuthor);
 router.post("/seminar/add", verifyToken, isAdmin, addSeminar);
 
 /* EXHIBITIONS */
+
+router.get("/exhibition/regs", getEventRegistrations);
 
 //add a new exhibition
 router.post("/exhibition/add", verifyToken, isAdmin, addExhibition);

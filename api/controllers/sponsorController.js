@@ -1,16 +1,22 @@
 const db = require("../config/DBconfig");
 
 const getAllSponsors = async(req, res) => {
-    const sql = `SELECT S.SPONSORNO as SponsorNo,
-                        S.STYPE as SponsorType,
-                        CASE 
-                            WHEN S.STYPE = 'HXY_ORGANIZATION' THEN O.ONAME
-                            WHEN S.STYPE = 'HXY_INDIVIDUAL' THEN CONCAT(I.SFNAME, ' ', I.SLNAME)
-                        END AS SponsorName
+    const sql = `SELECT S.SPONSORNO AS SponsorNo,
+                    S.STYPE AS SponsorType,
+                    O.ONAME AS SponsorName
                 FROM HXY_SPONSOR S
-                LEFT JOIN HXY_ORGANIZATION O ON O.SPONSORNO = S.SPONSORNO
-                LEFT JOIN HXY_INDIVIDUAL I ON I.SPONSORNO = S.SPONSORNO;`
+                JOIN HXY_ORGANIZATION O ON O.SPONSORNO = S.SPONSORNO
+                WHERE S.STYPE = 'HXY_ORGANIZATION'
 
+                UNION
+
+                SELECT S.SPONSORNO AS SponsorNo,
+                    S.STYPE AS SponsorType,
+                    CONCAT(I.SFNAME, ' ', I.SLNAME) AS SponsorName
+                FROM HXY_SPONSOR S
+                JOIN HXY_INDIVIDUAL I ON I.SPONSORNO = S.SPONSORNO
+                WHERE S.STYPE = 'HXY_INDIVIDUAL';
+                `
     try{
         const [sponsors] = await db.execute(sql);
 

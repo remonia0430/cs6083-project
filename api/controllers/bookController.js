@@ -45,7 +45,18 @@ const getById = async (req, res) =>{
     const id = req.query.id;
     if(!id) return res.status(400).json({success: false, code: 100, message: "Book id required"});
 
-    const book = `${bookInfo}
+    const book = `SELECT 
+                    b.BOOKNO as BookNo,
+                    b.BNAME as Title,
+                    t.TNAME as Topic,
+                    CONCAT(a.AFNAME, ' ', a.ALNAME) as Author,
+                    (SELECT COUNT(*) FROM HXY_COPY 
+                        WHERE BOOKNO = b.BOOKNO 
+                        AND STATUS = 'Available') as AvailableAmount
+                FROM HXY_BOOK b
+                JOIN HXY_TOPIC t ON b.TOPICID = t.TOPICID
+                JOIN HXY_BOOK_AUTHOR ba on b.BOOKNO = ba.BOOKNO
+                JOIN HXY_AUTHOR a on ba.AUTHNO = a.AUTHNO
                 WHERE b.BOOKNO = ? AND b.ISDELETED = 0
                 ${bookGroup};`;
     const copy = "SELECT * FROM HXY_COPY WHERE BOOKNO = ?"

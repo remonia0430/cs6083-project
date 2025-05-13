@@ -101,21 +101,25 @@ const getByInvoiceId = async (req, res) => {
 }
 
 const getByCustomerId = async (req, res) => {
-    const sql = `SELECT P.PAYID as PaymentId,
+
+    const sql = `WITH PaymentInfo AS (
+                    SELECT P.PAYID as PaymentId,
                         P.PAYDATE as PayDate,
                         P.METHOD as Method,
                         P.PAYAMOUNT as Amount,
                         P.RENTID as RentNo,
-                        C.CUSTNO as CustomerNo,
                         case
                             when P.METHOD = 'Credit' then CONCAT(P.CFNAME, ' ', P.CLNAME)
                             else null
                         end as CreditCardName,
-                        CONCAT(C.CFNAME, ' ', C.CLNAME) as CustomerName
                 FROM HXY_PAYMENT P
+                GROUP BY P.RENDID
+                )
+                SELECT * from PaymentInfo PI
                 LEFT JOIN HXY_RENTAL R ON R.RENTID = P.RENTID
                 LEFT JOIN HXY_CUSTOMER C ON C.CUSTNO = R.CUSTNO
                 WHERE C.CUSTNO = ?;`
+
     const id = req.query.id;
 
     if (!id) return res.status(400).json({ success: false, code: 100, message: 'id required' });

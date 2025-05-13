@@ -382,6 +382,28 @@ key: Content-Type   body: "application/json"
 }
 ```
 
+### addExhibition（管理员）
+- **方法**：POST  
+- **URL**：`https://cs6083-project.onrender.com/api/events/exhibition/regs?id=11`  
+- **权限**：管理员  
+- **说明**：根据eventID获取所有注册此exhibition的customer，返回联系方式，后期可用于活动开始前发消息/邮件  
+- **请求参数**：
+  - `id`: （示例：11）
+- **返回值**：
+```json
+{
+    "success": true,
+    "message": "ok",
+    "reg": [
+            {
+                "CustomerNo": 5,
+                "FirstName": "Emily",
+                "LastName": "E",
+                "CustomerEmail": "emilye@email.com",
+                "CustomerPhone": "555-555-5555"
+            }
+        ]
+}
 
 ### addExhibition（管理员）
 - **方法**：POST  

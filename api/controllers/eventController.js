@@ -1,5 +1,5 @@
 const db = require("../config/DBconfig");
-const { param } = require("../routes/bookRoutes");
+const { param, get } = require("../routes/bookRoutes");
 
 /**Events */
 const getAllEvents = async (req, res) => {
@@ -319,6 +319,31 @@ const registerExhibition = async(req, res) =>{
     }
 }
 
+const getEventRegistrations = async(req, res) =>{
+    const sql = `SELECT c.CUSTNO as CustomerNo,
+                    c.CFNAME as FirstName,
+                    c.CLNAME as LastName,
+                    c.EMAIL as CustomerEmail,
+                    c.PHONE as CustomerPhone
+                FROM HXY_CUSTOMER c
+                WHERE c.CUSTNO IN (
+                    SELECT ce.CUSTNO
+                    FROM HXY_CUSTOMER_EXHIBITION ce
+                    WHERE ce.ENVENTID = ?
+                )`;
+    const eventID = req.query.id;
+    if(!eventID) res.status(400).json({success: false, code: 100, message: 'user id required'});
+
+    try{
+        const [reg] = await db.execute(sql, [eventID]);
+        res.status(200).json({success: true, message: "ok", reg});
+    }
+    catch(err){
+        console.error(err);
+        return res.status(500).json({success: false, message: 'error'});
+    }
+}
+
 const cancelRegirtration = async(req, res) =>{
     const {regID} = req.body;
     if(!regID) res.status(400).json({success: false, code: 100, message: 'event id and user id required'});
@@ -353,6 +378,7 @@ module.exports = {
     getSeminarByAuthor,
     registerExhibition,
     cancelRegirtration,
+    getEventRegistrations,
     addExhibition,
     addSeminar,
     cancelEvent
