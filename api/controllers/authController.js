@@ -3,13 +3,15 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 
 const privateKey = fs.readFileSync(path.join(__dirname, "../utils/private.pem"), "utf8");
 
 function decryptData(encryptedData) {
     return crypto.privateDecrypt({
         key: privateKey,
-        padding: crypto.constants.RSA_PKCS1_PADDING,
+        padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+        oaepHash: "sha256",
     },
     Buffer.from(encryptedData, 'base64')
     ).toString('utf8');
