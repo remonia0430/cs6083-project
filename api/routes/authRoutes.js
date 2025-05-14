@@ -3,6 +3,7 @@ const verifyToken = require('../middleware/authMiddleware');
 const isAdmin = require('../middleware/adminMiddleware');
 const router = express.Router();
 const {
+    getKey,
     register,
     login,
     setAdmin,
@@ -10,6 +11,8 @@ const {
     verifyPasswordResetToken,
     resetPassword
 } = require("../controllers/authController");
+
+router.get("/getKey", getKey);
 
 //login
 router.post("/login", login);

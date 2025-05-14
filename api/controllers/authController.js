@@ -1,10 +1,27 @@
 const db = require("../config/DBconfig");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
+const path = require("path");
+
+const privateKey = fs.readFileSync(path.join(__dirname, "../utils/private.pem"), "utf8");
+
+function decryptData(encryptedData) {
+    return crypto.privateDecrypt({
+        key: privateKey,
+        padding: crypto.constants.RSA_PKCS1_PADDING,
+    },
+    Buffer.from(encryptedData, 'base64')
+    ).toString('utf8');
+}
+
+const getKey = async (req, res) => {
+    return res.status(200).json({ success: true, message: "Key retrieved successfully", privateKey});
+}
 
 const login = async (req, res) => {
     const { username, passwd } = req.body;
-    const password = passwd;
+    const password = decryptData(passwd);
     const sql = `SELECT * FROM HXY_CUSTOMER WHERE USERNAME = ?`;
     const [rows] = await db.execute(sql, [username]);
 
@@ -27,20 +44,19 @@ const login = async (req, res) => {
     res.status(200).json({ success: true, isAdmin, token });
 };
 
-
 const register = async (req, res) => {
     const {fname, lname, phone, email, idtype, idno, username, passwd} = req.body;
     if(!fname || !lname || !phone || !email || !idtype || !idno || !username || !passwd){
         return res.status(400).json({success: false, message: "missing fields"});
     }
-    
+    const pw = decryptData(passwd);
     try{
         const [user] = await db.execute("SELECT IS_ADMIN FROM HXY_CUSTOMER WHERE USERNAME = ?", [username]);
         if(user.length > 0){
             return res.status(400).json({success: false, message: `User ${username} already exists`});
         }
 
-        const hashedPW = await bcrypt.hash(passwd, 10);
+        const hashedPW = await bcrypt.hash(pw, 10);
         await db.execute(`INSERT INTO HXY_CUSTOMER (CFNAME, CLNAME, PHONE, EMAIL, IDTYPE, IDNO, IS_ADMIN, USERNAME, PASSWD)
                     VALUES(?, ?, ?, ?, ?, ?, 0, ?, ?)`, [fname, lname, phone, email, idtype, idno, username, hashedPW]);
 
@@ -174,7 +190,7 @@ const verifyPasswordResetToken = async (req, res) => {
 const resetPassword = async (req, res) => {
     const { newPasswd } = req.body;
     const id = req.user.id;
-    const newPassword = newPasswd;
+    const newPassword = decryptData(newPasswd);
     if (!newPassword) {
         return res.status(400).json({ success: false, code: 100, message: 'newPassword required' });
     }
@@ -203,6 +219,7 @@ const resetPassword = async (req, res) => {
 
 
 module.exports = {
+    getKey,
     login,
     register,
     setAdmin,
