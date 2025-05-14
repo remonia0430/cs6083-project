@@ -229,8 +229,12 @@ const returnBook = async(req, res) => {
         (await conn).beginTransaction();
 
         const rentalSQL = "SELECT * FROM HXY_RENTAL WHERE COPYNO = ? AND BOOKNO = ? AND CUSTNO = ? AND RSTATUS = 'Borrowed'";
-
         const [rental] = await conn.execute(rentalSQL, [copyNO, bookNO, custNO]);
+
+        if(rental.length === 0){
+            return res.status(400).json({success: false, code: 102, message: "Record not foundå"});
+        }
+
         const rentalID = rental[0].RENTID;
 
         const returnSQL = `UPDATE HXY_RENTAL SET RSTATUS = "Returned" , ARETURNDATE = ? WHERE RENTID = ?`
