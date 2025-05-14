@@ -159,13 +159,20 @@ const rentBook = async(req, res) => {
                         FROM HXY_RENTAL R
                         WHERE R.CUSTNO = ? AND R.RSTATUS != 'Returned'
                         ;`
-    const invoiceCheck = `SELECT 
-                            SUM(I.INVAMOUNT) - SUM(IFNULL(P.PAYAMOUNT, 0)) AS InvoiceAmount
-                        FROM HXY_RENTAL R
-                        JOIN HXY_INVOICE I ON R.RENTID = I.RENTID
-                        LEFT JOIN HXY_PAYMENT P ON I.RENTID = P.RENTID
-                        WHERE R.CUSTNO = ?
-                        ;`
+    const invoiceCheck = 
+
+                        `SELECT 
+                        case
+                            when SUM(P.PAYAMOUNT) is null then I.INVAMOUNT
+                            else I.INVAMOUNT - SUM(P.PAYAMOUNT)
+                        end as RemainingAmount
+                        FROM HXY_INVOICE I
+                        LEFT JOIN HXY_PAYMENT P ON P.RENTID = I.RENTID
+                        LEFT JOIN HXY_RENTAL R ON R.RENTID = I.RENTID
+                        LEFT JOIN HXY_CUSTOMER C ON C.CUSTNO = R.CUSTNO
+                        WHERE C.CUSTNO = 1
+                        GROUP BY I.RENTID
+                        HAVING RemainingAmount > 0;`
                             
     const checkSQL = `SELECT STATUS as status FROM HXY_COPY WHERE COPYNO = ? AND BOOKNO = ? AND ISDELETED = 0`
     const curDate = new Date();
@@ -177,7 +184,7 @@ const rentBook = async(req, res) => {
             return res.status(400).json({success: false, code: 666, message: "User has too many rentals"});
         }
         const [i] = await conn.execute(invoiceCheck, [custNO]);
-        if(i[0].InvoiceAmount > 0){
+        if(i.length !== 0){
             return res.status(400).json({success: false, code: 667, message: "User has unpaid invoices"});
         }
 
