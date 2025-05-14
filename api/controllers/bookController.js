@@ -390,7 +390,7 @@ const getMostBorrowed = async (req, res) => {
     const sqlEnd = ` ORDER BY BorrowedAmount DESC LIMIT `;
 
     // 获取参数
-    let { time, topicNO, count, authorName } = req.body;
+    let { time, topicNO, count, authorName } = req.query;
 
     const today = new Date();
     const sTime = new Date();
